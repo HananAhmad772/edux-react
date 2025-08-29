@@ -1,0 +1,349 @@
+import { ArrowRight, BookOpen, Award, Users, Briefcase, Clock, CheckCircle, Play, Star, Code, Smartphone, Cloud, Database, Globe, Zap, Target } from 'lucide-react';
+
+const Students = () => {
+  const courses = [
+    {
+      category: 'Web Development',
+      icon: Code,
+      courses: [
+        {
+          title: 'HTML & CSS Fundamentals',
+          description: 'Learn the basics of web markup and styling',
+          duration: '4 weeks',
+          level: 'Beginner',
+          rating: 4.8,
+          students: '2.5K',
+          free: true
+        },
+        {
+          title: 'JavaScript Mastery',
+          description: 'Master modern JavaScript ES6+ and DOM manipulation',
+          duration: '6 weeks',
+          level: 'Intermediate',
+          rating: 4.9,
+          students: '3.2K',
+          free: true
+        },
+        {
+          title: 'React.js Complete Course',
+          description: 'Build modern web applications with React',
+          duration: '8 weeks',
+          level: 'Intermediate',
+          rating: 4.9,
+          students: '4.1K',
+          free: true
+        }
+      ]
+    },
+    {
+      category: 'Mobile Development',
+      icon: Smartphone,
+      courses: [
+        {
+          title: 'React Native Basics',
+          description: 'Create cross-platform mobile apps with React Native',
+          duration: '8 weeks',
+          level: 'Intermediate',
+          rating: 4.7,
+          students: '1.8K',
+          free: true
+        },
+        {
+          title: 'Flutter Development',
+          description: 'Build beautiful apps with Google\'s Flutter framework',
+          duration: '10 weeks',
+          level: 'Intermediate',
+          rating: 4.8,
+          students: '1.5K',
+          free: true
+        }
+      ]
+    },
+    {
+      category: 'Cloud Computing',
+      icon: Cloud,
+      courses: [
+        {
+          title: 'AWS Fundamentals',
+          description: 'Learn Amazon Web Services from scratch',
+          duration: '6 weeks',
+          level: 'Intermediate',
+          rating: 4.9,
+          students: '2.1K',
+          free: true
+        },
+        {
+          title: 'Docker & Kubernetes',
+          description: 'Master containerization and orchestration',
+          duration: '8 weeks',
+          level: 'Advanced',
+          rating: 4.8,
+          students: '1.2K',
+          free: true
+        }
+      ]
+    },
+    {
+      category: 'Data Science',
+      icon: Database,
+      courses: [
+        {
+          title: 'Python for Data Science',
+          description: 'Learn Python programming for data analysis and machine learning',
+          duration: '6 weeks',
+          level: 'Beginner',
+          rating: 4.9,
+          students: '2.8K',
+          free: true
+        },
+        {
+          title: 'Machine Learning Fundamentals',
+          description: 'Introduction to ML algorithms and data preprocessing',
+          duration: '8 weeks',
+          level: 'Intermediate',
+          rating: 4.8,
+          students: '1.9K',
+          free: true
+        },
+        {
+          title: 'Data Visualization with Python',
+          description: 'Create compelling charts and interactive dashboards',
+          duration: '4 weeks',
+          level: 'Intermediate',
+          rating: 4.7,
+          students: '1.6K',
+          free: true
+        }
+      ]
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: BookOpen,
+      title: 'Free Access',
+      description: 'All courses, materials, and resources are completely free'
+    },
+    {
+      icon: Award,
+      title: 'Industry Certifications',
+      description: 'Earn recognized certificates that boost your resume'
+    },
+    {
+      icon: Users,
+      title: 'Expert Mentors',
+      description: 'Learn from industry professionals and experienced developers'
+    },
+    {
+      icon: Briefcase,
+      title: 'Job Placement',
+      description: 'Direct connection to companies hiring developers'
+    },
+    {
+      icon: Globe,
+      title: 'Global Community',
+      description: 'Connect with students and developers worldwide'
+    },
+    {
+      icon: Zap,
+      title: 'Hands-on Projects',
+      description: 'Build real-world projects for your portfolio'
+    }
+  ];
+
+  const learningPath = [
+    {
+      step: '01',
+      title: 'Choose Your Path',
+      description: 'Select from web development, mobile apps, cloud computing, or data science'
+    },
+    {
+      step: '02',
+      title: 'Start Learning',
+      description: 'Begin with fundamentals and progress through structured courses'
+    },
+    {
+      step: '03',
+      title: 'Build Projects',
+      description: 'Apply your knowledge by building real-world applications'
+    },
+    {
+      step: '04',
+      title: 'Get Certified',
+      description: 'Complete assessments and earn industry-recognized certifications'
+    },
+    {
+      step: '05',
+      title: 'Land Your Job',
+      description: 'Use our job placement services to find your dream tech position'
+    }
+  ];
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Start Your Tech Career
+          </h1>
+          <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8">
+            Access world-class software development education completely free. 
+            Learn from experts, build real projects, and land your dream job.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
+              Browse Courses
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </button>
+            <button className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200">
+              <Play className="mr-2 w-5 h-5" />
+              Watch Intro Video
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Choose EduX for Learning?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              We provide everything you need to succeed in the tech industry, completely free.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {benefits.map((benefit, index) => {
+              const Icon = benefit.icon;
+              return (
+                <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 border border-gray-100">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{benefit.title}</h3>
+                  <p className="text-gray-600">{benefit.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Learning Path Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Your Learning Journey
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Follow our proven 5-step process to become a job-ready developer.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {learningPath.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">
+                  {step.step}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{step.title}</h3>
+                <p className="text-gray-600 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Courses Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Available Courses
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choose from our comprehensive course catalog covering all major tech skills.
+            </p>
+          </div>
+          
+          {courses.map((category, categoryIndex) => {
+            const Icon = category.icon;
+            return (
+              <div key={categoryIndex} className="mb-16">
+                <div className="flex items-center space-x-3 mb-8">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">{category.category}</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {category.courses.map((course, courseIndex) => (
+                    <div key={courseIndex} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 border border-gray-100">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                            {course.level}
+                          </span>
+                          {course.free && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                              FREE
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600">{course.rating}</span>
+                        </div>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">{course.title}</h4>
+                      <p className="text-gray-600 text-sm mb-4">{course.description}</p>
+                      <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                        <span className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{course.duration}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <Users className="w-4 h-4" />
+                          <span>{course.students} students</span>
+                        </span>
+                      </div>
+                      <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+                        Start Learning
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to Start Learning?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of students who are already building their tech careers with EduX.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
+              Get Started Now
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </button>
+            <button className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200">
+              View All Courses
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Students;
