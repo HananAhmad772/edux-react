@@ -265,8 +265,107 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Success Stories Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🎉 Success Stories
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Real people, real results. See how EduX is transforming careers and businesses.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {/* Top Student Preview */}
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 border border-gray-100">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                  🥇
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">Sarah Johnson</div>
+                  <div className="text-sm text-blue-600">Full Stack Developer</div>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                "EduX transformed my career! I went from zero coding knowledge to landing a job at a top tech company in just 6 months."
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600">Grade: <span className="font-bold text-blue-600">98%</span></span>
+                <Link to="/students" className="text-blue-600 hover:text-blue-800 font-medium">View More →</Link>
+              </div>
+            </div>
+
+            {/* Top Mentor Preview */}
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 border border-gray-100">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                  👨‍🏫
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">Dr. Sarah Chen</div>
+                  <div className="text-sm text-orange-600">Senior Developer</div>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                "Teaching at EduX has been incredibly rewarding. I've helped over 500 students launch their careers in tech."
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600">Rating: <span className="font-bold text-orange-600">4.9★</span></span>
+                <Link to="/mentors" className="text-orange-600 hover:text-orange-800 font-medium">View More →</Link>
+              </div>
+            </div>
+
+            {/* Top Company Preview */}
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 border border-gray-100">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                  🏢
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">TechCorp Solutions</div>
+                  <div className="text-sm text-green-600">SaaS Platform</div>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                "EduX has revolutionized our hiring process. We've built an exceptional development team that drives our success."
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600">85 Developers Hired</span>
+                <Link to="/companies" className="text-green-600 hover:text-green-800 font-medium">View More →</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="inline-flex space-x-4">
+              <Link
+                to="/students"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+              >
+                View Top Students
+              </Link>
+              <Link
+                to="/mentors"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-200"
+              >
+                View Top Mentors
+              </Link>
+              <Link
+                to="/companies"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-200"
+              >
+                View Top Companies
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+          <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -286,6 +385,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* CTA Section */}
       <section className="py-20 bg-white">

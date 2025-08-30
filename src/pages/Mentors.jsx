@@ -299,7 +299,7 @@ const Mentors = () => {
         </div>
       </section>
 
-      {/* Success Stories Section */}
+      {/* Success Stories Section
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -338,8 +338,219 @@ const Mentors = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
+      {/* Top Teachers Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+               Top Performing Teachers
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Meet our exceptional mentors who are transforming lives through outstanding teaching and mentorship.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Top Teacher 1 */}
+            <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+              <div className="relative">
+                <div className="h-48 bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center">
+                  {/* <div className="text-6xl">👨‍🏫</div>   */}
+                </div>
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                  <img 
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                    alt="Dr. Sarah Chen"
+                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                  />
+                </div>
+              </div>
+              
+              <div className="pt-16 pb-8 px-6 text-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Dr. Sarah Chen</h3>
+                  <p className="text-orange-600 font-medium">Senior Frontend Developer</p>
+                  <p className="text-sm text-gray-500">Google</p>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Students Taught:</span>
+                    <span className="font-bold text-orange-600">500+</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Rating:</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-bold text-red-600">4.9</span>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Courses Created:</span>
+                    <span className="font-bold text-amber-600">12</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-gray-700 italic">
+                    "Teaching at EduX has been incredibly rewarding. I've helped over 500 students launch their careers in tech while earning a great income."
+                  </p>
+                </div>
+                
+                <div className="flex justify-center space-x-2 mb-4">
+                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-medium">React</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">JavaScript</span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-medium">Node.js</span>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Monthly Income:</div>
+                  <div className="text-2xl font-bold text-orange-600">$3,200</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Teacher 2 */}
+            <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+              <div className="relative">
+                <div className="h-48 bg-gradient-to-r from-red-400 to-pink-500 flex items-center justify-center">
+                  {/* <div className="text-6xl">👩‍💼</div> */}
+                </div>
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                  <img 
+                    src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+                    alt="Prof. Mike Rodriguez"
+                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                  />
+                </div>
+              </div>
+              
+              <div className="pt-16 pb-8 px-6 text-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Prof. Mike Rodriguez</h3>
+                  <p className="text-orange-600 font-medium">DevOps Engineer</p>
+                  <p className="text-sm text-gray-500">Amazon</p>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Students Taught:</span>
+                    <span className="font-bold text-orange-600">750+</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Rating:</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-bold text-red-600">4.8</span>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Courses Created:</span>
+                    <span className="font-bold text-amber-600">8</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-gray-700 italic">
+                    "EduX has given me the platform to share my AWS expertise with hundreds of students. The impact on their careers is incredibly satisfying."
+                  </p>
+                </div>
+                
+                <div className="flex justify-center space-x-2 mb-4">
+                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-medium">AWS</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">Docker</span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-medium">Kubernetes</span>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Monthly Income:</div>
+                  <div className="text-2xl font-bold text-orange-600">$4,800</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Teacher 3 */}
+            <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+              <div className="relative">
+                <div className="h-48 bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center">
+                  {/* <div className="text-6xl">👩‍🏫</div> */}
+                </div>
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                  <img 
+                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+                    alt="Dr. Emily Watson"
+                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                  />
+                </div>
+              </div>
+              
+              <div className="pt-16 pb-8 px-6 text-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Dr. Emily Watson</h3>
+                  <p className="text-orange-600 font-medium">Mobile Developer</p>
+                  <p className="text-sm text-gray-500">Apple</p>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Students Taught:</span>
+                    <span className="font-bold text-orange-600">420+</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Rating:</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-bold text-red-600">4.9</span>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Courses Created:</span>
+                    <span className="font-bold text-amber-600">6</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-gray-700 italic">
+                    "Mentoring iOS development has been my passion. Seeing students build successful apps and get hired by top companies is the ultimate reward."
+                  </p>
+                </div>
+                
+                <div className="flex justify-center space-x-2 mb-4">
+                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-medium">iOS</span>
+                  <span className="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">Swift</span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-medium">React Native</span>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Monthly Income:</div>
+                  <div className="text-2xl font-bold text-orange-600">$3,600</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <button className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+              View All Top Teachers
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </section>
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-orange-600 to-red-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
