@@ -109,6 +109,9 @@ const Footer = () => {
               <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
                 Cookie Policy
               </a>
+              <Link to="/admin/login" className="text-gray-500 hover:text-gray-300 transition-colors duration-200 text-xs">
+                Admin
+              </Link>
             </div>
           </div>
         </div>
