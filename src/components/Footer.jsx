@@ -48,9 +48,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/skills-exchange" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
-                  Skills Exchange
-                </Link>
+                <Link to="/register/student" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                  Learn With AI
+                </Link> 
               </li>
               <li>
                 <Link to="/contact" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
@@ -83,11 +83,11 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-300 text-sm">+1 (555) 123-4567</span>
+                <span className="text-gray-300 text-sm">+92 309 9789583</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-300 text-sm">123 Tech Street, Digital City</span>
+                <span className="text-gray-300 text-sm">Lahore, Punjab, Pakistan</span>
               </div>
             </div>
           </div>
@@ -100,13 +100,13 @@ const Footer = () => {
               © 2024 EduX. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors duration-200">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="/terms-of-service" className="text-gray-400 hover:text-white transition-colors duration-200">
                 Terms of Service
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="/cookie-policy" className="text-gray-400 hover:text-white transition-colors duration-200">
                 Cookie Policy
               </a>
               <Link to="/admin/login" className="text-gray-500 hover:text-gray-300 transition-colors duration-200 text-xs">

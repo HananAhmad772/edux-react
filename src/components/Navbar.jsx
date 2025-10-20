@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, GraduationCap, Users, Building, BookOpen, ChevronDown } from 'lucide-react';
+import { Menu, X, GraduationCap, Users, Building, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,14 +11,14 @@ const Navbar = () => {
   const navItems = [
     { name: 'Home', path: '/', icon: GraduationCap },
     { name: 'About', path: '/about', icon: Users },
-    { name: 'Skills Exchange', path: '/skills-exchange', icon: BookOpen },
     { name: 'Contact', path: '/contact', icon: Building },
   ];
 
   const userTypeItems = [
     { name: 'Students', path: '/students', icon: GraduationCap },
     { name: 'Companies', path: '/companies', icon: Building },
-    { name: 'Mentors', path: '/mentors', icon: Users },
+    { name: 'Job Seekers', path: '/job-seekers', icon: Users },
+
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -118,14 +118,6 @@ const Navbar = () => {
                     <span>Student</span>
                   </Link>
                   <Link
-                    to="/register/mentor"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors duration-200"
-                    onClick={() => setIsGetStartedDropdownOpen(false)}
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Mentor</span>
-                  </Link>
-                  <Link
                     to="/register/company"
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsGetStartedDropdownOpen(false)}
@@ -133,13 +125,13 @@ const Navbar = () => {
                     <Building className="w-4 h-4" />
                     <span>Company</span>
                   </Link>
-                  <Link
-                    to="/register/professional"
+                    <Link
+                    to="/register/job-seeker"
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsGetStartedDropdownOpen(false)}
                   >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Professional</span>
+                    <Building className="w-4 h-4" />
+                    <span>Job Seeker</span>
                   </Link>
                 </div>
               )}
@@ -216,25 +208,11 @@ const Navbar = () => {
                     Student
                   </Link>
                   <Link
-                    to="/register/mentor"
-                    className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-200 text-center block"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Mentor
-                  </Link>
-                  <Link
                     to="/register/company"
                     className="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-200 text-center block"
                     onClick={() => setIsOpen(false)}
                   >
                     Company
-                  </Link>
-                  <Link
-                    to="/register/professional"
-                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 text-center block"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Professional
                   </Link>
                 </div>
               </div>

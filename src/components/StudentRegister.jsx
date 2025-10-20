@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar, GraduationCap, Building, BookOpen, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar, GraduationCap, Building, BookOpen, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import AuthLayout from './AuthLayout';
+import StudentRegistrationWizard from './StudentRegistrationWizard';
+import api from '../api/axios';
 
 const StudentRegister = () => {
   const navigate = useNavigate();
@@ -11,22 +13,28 @@ const StudentRegister = () => {
     last_name: '',
     email: '',
     password: '',
-    confirm_password: '',
+    password_confirmation: '',
     phone: '',
     user_type: 'student',
     
     // Student specific fields
-    date_of_birth: '',
+    dob: '',
     gender: '',
     class_year: '',
     institute: '',
-    subjects_of_interest: ''
+    major_subject: ''
   });
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showWizard, setShowWizard] = useState(false);
+  const [pendingRegistration, setPendingRegistration] = useState(null);
+  const [validationMessages, setValidationMessages] = useState({
+    email: '',
+    phone: ''
+  });
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -34,15 +42,85 @@ const StudentRegister = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  const classYearOptions = [
-    'High School',
-    'Freshman',
-    'Sophomore',
-    'Junior',
-    'Senior',
-    'Graduate Student',
-    'Self-Learning'
-  ];
+const classYearOptions = [
+  { value: "matric", label: "Matriculation (Secondary School)" },
+  { value: "intermediate", label: "Intermediate (Higher Secondary)" },
+  { value: "ug1", label: "Undergraduate – 1st Year" },
+  { value: "ug2", label: "Undergraduate – 2nd Year" },
+  { value: "ug3", label: "Undergraduate – 3rd Year" },
+  { value: "ug4", label: "Undergraduate – 4th Year / Final Year" },
+  { value: "graduate", label: "Graduate (Master’s / Postgraduate)" },
+  { value: "other", label: "Other (Diploma / Certification / Self-Learner)" },
+];
+
+const fieldofinterestOptions = [
+  { value: 'web_development', label: 'Web Development' },
+  { value: 'mobile_development', label: 'Mobile Development' },
+  { value: 'data_science', label: 'Data Science & AI' },
+  { value: 'cloud_computing', label: 'Cloud Computing' },
+  { value: 'database_management', label: 'Database Management' },
+  { value: 'ui_ux_design', label: 'UI/UX Design' }
+]
+
+
+  // Debounce function to limit API calls
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+  // Validate email uniqueness
+  const validateEmailUniqueness = useCallback(
+    debounce(async (email) => {
+      if (!email || !/\S+@\S+\.\S+/.test(email)) return;
+      
+      try {
+        const response = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`);
+        if (response.data.exists) {
+          setValidationMessages(prev => ({
+            ...prev,
+            email: 'This email is already registered. Please use a different email or login.'
+          }));
+        } else {
+          setValidationMessages(prev => ({
+            ...prev,
+            email: ''
+          }));
+        }
+      } catch (error) {
+        console.error('Email validation error:', error);
+      }
+    }, 500),
+    []
+  );
+
+  // Validate phone uniqueness
+  const validatePhoneUniqueness = useCallback(
+    debounce(async (phone) => {
+      if (!phone) return;
+      
+      try {
+        const response = await api.get(`/auth/check-phone?phone=${encodeURIComponent(phone)}`);
+        if (response.data.exists) {
+          setValidationMessages(prev => ({
+            ...prev,
+            phone: 'This phone number is already registered. Please use a different number or login.'
+          }));
+        } else {
+          setValidationMessages(prev => ({
+            ...prev,
+            phone: ''
+          }));
+        }
+      } catch (error) {
+        console.error('Phone validation error:', error);
+      }
+    }, 500),
+    []
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,12 +128,20 @@ const StudentRegister = () => {
       ...prev,
       [name]: value
     }));
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
       }));
+    }
+    
+    // Trigger validation for email and phone
+    if (name === 'email') {
+      validateEmailUniqueness(value);
+    } else if (name === 'phone') {
+      validatePhoneUniqueness(value);
     }
   };
 
@@ -70,6 +156,8 @@ const StudentRegister = () => {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
+    } else if (validationMessages.email) {
+      newErrors.email = validationMessages.email;
     }
     
     if (!formData.password) {
@@ -78,20 +166,25 @@ const StudentRegister = () => {
       newErrors.password = 'Password must be at least 6 characters';
     }
     
-    if (!formData.confirm_password) {
-      newErrors.confirm_password = 'Please confirm your password';
-    } else if (formData.password !== formData.confirm_password) {
-      newErrors.confirm_password = 'Passwords do not match';
+    if (!formData.password_confirmation) {
+      newErrors.password_confirmation = 'Please confirm your password';
+    } else if (formData.password !== formData.password_confirmation) {
+      newErrors.password_confirmation = 'Passwords do not match';
     }
     
-    if (!formData.phone) newErrors.phone = 'Phone number is required';
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (validationMessages.phone) {
+      newErrors.phone = validationMessages.phone;
+    }
     
     // Student specific validations
-    if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
+    if (!formData.dob) newErrors.dob = 'Date of birth is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
     if (!formData.class_year) newErrors.class_year = 'Class year is required';
     if (!formData.institute) newErrors.institute = 'Institute is required';
-    if (!formData.subjects_of_interest) newErrors.subjects_of_interest = 'Subjects of interest is required';
+    // Commented out - Field of Interest now handled in wizard
+    // if (!formData.major_subject) newErrors.major_subject = 'Subjects of interest are required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -104,23 +197,20 @@ const StudentRegister = () => {
       return;
     }
 
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Here you would make the actual API call
-      console.log('Student registration:', formData);
-      
-      // Redirect to student dashboard
-      navigate('/students');
-    } catch (error) {
-      console.error('Registration error:', error);
-      setErrors({ general: 'Registration failed. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
+    // Store form data and show wizard
+    setPendingRegistration(formData);
+    setShowWizard(true);
+  };
+
+  const handleWizardComplete = () => {
+    // Close wizard and redirect to login
+    setShowWizard(false);
+    navigate("/login");
+  };
+
+  const handleWizardClose = () => {
+    setShowWizard(false);
+    setPendingRegistration(null);
   };
 
   return (
@@ -217,13 +307,23 @@ const StudentRegister = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
+                  errors.email || validationMessages.email ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Enter your email"
               />
+              {validationMessages.email && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
             </div>
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
+            {validationMessages.email && !errors.email && (
+              <p className="mt-1 text-sm text-red-600">{validationMessages.email}</p>
             )}
           </div>
 
@@ -244,13 +344,23 @@ const StudentRegister = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.phone ? 'border-red-300' : 'border-gray-300'
+                  errors.phone || validationMessages.phone ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Enter your phone number"
               />
+              {validationMessages.phone && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
             </div>
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+            {validationMessages.phone && !errors.phone && (
+              <p className="mt-1 text-sm text-red-600">{validationMessages.phone}</p>
             )}
           </div>
 
@@ -294,7 +404,7 @@ const StudentRegister = () => {
             </div>
             
             <div>
-              <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -302,14 +412,14 @@ const StudentRegister = () => {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="confirm_password"
-                  name="confirm_password"
+                  id="password_confirmation"
+                  name="password_confirmation"
                   type={showConfirmPassword ? 'text' : 'password'}
                   required
-                  value={formData.confirm_password}
+                  value={formData.password_confirmation}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-12 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.confirm_password ? 'border-red-300' : 'border-gray-300'
+                    errors.password_confirmation ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Confirm password"
                 />
@@ -325,8 +435,8 @@ const StudentRegister = () => {
                   )}
                 </button>
               </div>
-              {errors.confirm_password && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirm_password}</p>
+              {errors.password_confirmation && (
+                <p className="mt-1 text-sm text-red-600">{errors.password_confirmation}</p>
               )}
             </div>
           </div>
@@ -339,7 +449,7 @@ const StudentRegister = () => {
           {/* Date of Birth and Gender */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-2">
                 Date of Birth
               </label>
               <div className="relative">
@@ -347,19 +457,19 @@ const StudentRegister = () => {
                   <Calendar className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="date_of_birth"
-                  name="date_of_birth"
+                  id="dob"
+                  name="dob"
                   type="date"
                   required
-                  value={formData.date_of_birth}
+                  value={formData.dob}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.date_of_birth ? 'border-red-300' : 'border-gray-300'
+                    errors.dob ? 'border-red-300' : 'border-gray-300'
                   }`}
                 />
               </div>
-              {errors.date_of_birth && (
-                <p className="mt-1 text-sm text-red-600">{errors.date_of_birth}</p>
+              {errors.dob && (
+                <p className="mt-1 text-sm text-red-600">{errors.dob}</p>
               )}
             </div>
             
@@ -412,8 +522,8 @@ const StudentRegister = () => {
                 >
                   <option value="">Select class year</option>
                   {classYearOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -450,32 +560,62 @@ const StudentRegister = () => {
             </div>
           </div>
 
-          {/* Subjects of Interest */}
-          <div>
-            <label htmlFor="subjects_of_interest" className="block text-sm font-medium text-gray-700 mb-2">
-              Subjects of Interest
+          {/* Subjects of Interest - COMMENTED OUT - Now handled in wizard */}
+          {/* <div>
+              <label htmlFor="class_year" className="block text-sm font-medium text-gray-700 mb-2">
+                Field of interest
+                </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BookOpen className="h-5 w-5 text-gray-400" />
+                </div>
+                <select
+                  id="major_subject"
+                  name="major_subject"
+                  required
+                  value={formData.major_subject}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.major_subject ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select Field</option>
+                  {fieldofinterestOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.class_year && (
+                <p className="mt-1 text-sm text-red-600">{errors.class_year}</p>
+              )}
+            </div> */}
+          {/* <div>
+            <label htmlFor="major_subject" className="block text-sm font-medium text-gray-700 mb-2">
+             Field of Interest
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <BookOpen className="h-5 w-5 text-gray-400" />
               </div>
               <textarea
-                id="subjects_of_interest"
-                name="subjects_of_interest"
+                id="major_subject"
+                name="major_subject"
                 rows="3"
                 required
-                value={formData.subjects_of_interest}
+                value={formData.major_subject}
                 onChange={handleChange}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.subjects_of_interest ? 'border-red-300' : 'border-gray-300'
+                  errors.major_subject ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="e.g., Web Development, Mobile Apps, Data Science, Cloud Computing..."
               />
             </div>
-            {errors.subjects_of_interest && (
-              <p className="mt-1 text-sm text-red-600">{errors.subjects_of_interest}</p>
+            {errors.major_subject && (
+              <p className="mt-1 text-sm text-red-600">{errors.major_subject}</p>
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* General Error */}
@@ -495,7 +635,7 @@ const StudentRegister = () => {
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
           ) : (
             <>
-              Create Student Account
+              Continue to Profile Setup
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           )}
@@ -514,6 +654,14 @@ const StudentRegister = () => {
           </p>
         </div>
       </form>
+
+      {/* Registration Wizard Modal */}
+      <StudentRegistrationWizard
+        isOpen={showWizard}
+        onClose={handleWizardClose}
+        onComplete={handleWizardComplete}
+        studentData={pendingRegistration}
+      />
     </AuthLayout>
   );
 };

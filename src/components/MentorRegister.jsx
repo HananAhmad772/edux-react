@@ -110,8 +110,8 @@ const MentorRegister = () => {
 
   return (
     <AuthLayout
-      title="Join as Mentor"
-      subtitle="Share your expertise and help others learn"
+      title="Join as Job Seeker"
+      subtitle="Share your expertise and Find Your Dream Job"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Back to Login */}

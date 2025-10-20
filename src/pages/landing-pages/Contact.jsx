@@ -11,20 +11,20 @@ const Contact = () => {
     {
       icon: Phone,
       title: 'Call Us',
-      info: '+1 (555) 123-4567',
-      description: 'Mon-Fri from 8am to 6pm'
+      info: '+92 309-978-9583',
+      description: 'Mon-Fri from 9am to 6pm'
     },
     {
       icon: MapPin,
       title: 'Visit Us',
-      info: '123 Tech Street, Digital City',
+      info: 'Tipu Block, Garden Town, Lahore, Pakistan',
       description: 'Schedule a meeting with us'
     },
     {
       icon: Clock,
       title: 'Business Hours',
       info: 'Monday - Friday',
-      description: '8:00 AM - 6:00 PM EST'
+      description: '9:00 AM - 6:00 PM PKT'
     }
   ];
 
@@ -33,19 +33,19 @@ const Contact = () => {
       icon: Users,
       title: 'Student Support',
       email: 'students@edux.com',
-      description: 'Get help with courses, certifications, and learning resources'
+      description: 'Comprehensive assistance with courses, certifications, learning resources, and career development services'
     },
     {
       icon: Building,
-      title: 'Business Development',
+      title: 'Corporate Partnerships',
       email: 'business@edux.com',
-      description: 'Partnerships, corporate training, and hiring solutions'
+      description: 'Strategic partnerships, corporate training programs, talent acquisition solutions, and enterprise collaboration opportunities'
     },
     {
       icon: MessageCircle,
       title: 'General Inquiries',
       email: 'info@edux.com',
-      description: 'General questions about EduX platform and services'
+      description: 'Platform information, account assistance, technical support, and general consultation services'
     }
   ];
 
@@ -58,7 +58,7 @@ const Contact = () => {
             Get in Touch
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            We welcome your inquiries and are committed to providing prompt, professional assistance. Our team is available to address your questions and support your journey with EduX.
           </p>
         </div>
       </section>
@@ -90,7 +90,7 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Submit Your Inquiry</h2>
               <form className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -172,9 +172,10 @@ const Contact = () => {
             {/* Contact Info */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Professional Contact</h2>
                 <p className="text-lg text-gray-600 mb-8">
-                  We're here to help and answer any questions you might have. We look forward to hearing from you.
+                  Our dedicated team is available to assist you with any inquiries regarding our platform, programs, 
+                  or partnership opportunities. We ensure a timely and professional response to all communications.
                 </p>
               </div>
 
@@ -206,11 +207,11 @@ const Contact = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <MapPin className="w-5 h-5 text-blue-600" />
-                    <span className="text-gray-700">123 Tech Street, Digital City, DC 12345</span>
+                    <span className="text-gray-700">Tipu Block, Garden Town, Lahore, Pakistan</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Clock className="w-5 h-5 text-blue-600" />
-                    <span className="text-gray-700">Monday - Friday: 8:00 AM - 6:00 PM EST</span>
+                    <span className="text-gray-700">Monday - Friday: 9:00 AM - 6:00 PM PKT</span>
                   </div>
                 </div>
               </div>
@@ -227,26 +228,26 @@ const Contact = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-gray-600">
-              Find quick answers to common questions about EduX.
+              Find answers to commonly asked questions regarding our platform, programs, and services.
             </p>
           </div>
           <div className="space-y-6">
             {[
               {
-                question: "How much does it cost to use EduX?",
-                answer: "EduX is completely free for students. All courses, certifications, and learning resources are available at no cost."
+                question: "What is the cost structure for EduX programs?",
+                answer: "EduX provides complimentary access to all educational programs for students. Our comprehensive curriculum, AI-powered learning tools, attested certifications, and career placement services are available at no cost to qualified learners."
               },
               {
-                question: "What skills can I learn on EduX?",
-                answer: "We offer courses in web development, mobile app development, cloud computing (AWS), frontend/backend development, QA testing, and many more in-demand tech skills."
+                question: "What technical competencies can I develop through EduX?",
+                answer: "Our curriculum encompasses comprehensive training in web development, mobile application development, cloud computing (AWS), frontend and backend development, quality assurance testing, data science, and additional in-demand technology skills aligned with current industry requirements."
               },
               {
-                question: "How do I get certified?",
-                answer: "Complete the required coursework, pass assessments, and complete hands-on projects to earn industry-recognized certifications."
+                question: "How does the certification process function?",
+                answer: "Upon successful completion of required coursework, assessments, and hands-on projects, learners receive attested, industry-recognized certifications that validate their technical competencies and enhance their professional credentials."
               },
               {
-                question: "Can companies hire through EduX?",
-                answer: "Yes! Companies can post job openings, build their profiles, and hire qualified students directly through our platform."
+                question: "What recruitment services are available for companies?",
+                answer: "Organizations can establish company profiles, post position openings, review verified candidate portfolios with attested certifications, and engage directly with qualified technical professionals through our comprehensive talent acquisition platform."
               }
             ].map((faq, index) => (
               <div key={index} className="bg-gray-50 p-6 rounded-lg">

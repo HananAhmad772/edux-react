@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Menu, X, Home, Users, Building, BookOpen, Briefcase, AlertCircle, BarChart3, Settings } from 'lucide-react';
-import AdminStudents from '../components/admin/AdminStudents';
-import AdminMentors from '../components/admin/AdminMentors';
-import AdminProfessionals from '../components/admin/AdminProfessionals';
-import AdminCompanies from '../components/admin/AdminCompanies';
-import AdminAnalytics from '../components/admin/AdminAnalytics';
-import AdminSettings from '../components/admin/AdminSettings';
+import AdminStudents from '../../components/admin/AdminStudents';
+import AdminMentors from '../../components/admin/AdminMentors';
+import AdminProfessionals from '../../components/admin/AdminProfessionals';
+import AdminCompanies from '../../components/admin/AdminCompanies';
+import AdminAnalytics from '../../components/admin/AdminAnalytics';
+import AdminSettings from '../../components/admin/AdminSettings';
 
 const SuperAdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

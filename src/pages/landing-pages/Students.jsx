@@ -1,4 +1,5 @@
-import { ArrowRight, BookOpen, Award, Users, Briefcase, Clock, CheckCircle, Play, Star, Code, Smartphone, Cloud, Database, Globe, Zap, Target } from 'lucide-react';
+import { ArrowRight, BookOpen, Award, Users, Briefcase, Clock, CheckCircle, Play, Star, Code, Smartphone, Cloud, Database, Globe, Zap, Target, Cpu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Students = () => {
   const courses = [
@@ -121,61 +122,63 @@ const Students = () => {
   const benefits = [
     {
       icon: BookOpen,
-      title: 'Free Access',
-      description: 'All courses, materials, and resources are completely free'
+      title: 'Complimentary Access',
+      description: 'All educational programs, learning materials, and professional resources provided at no cost'
     },
     {
       icon: Award,
-      title: 'Industry Certifications',
-      description: 'Earn recognized certificates that boost your resume'
+      title: 'Attested Certifications',
+      description: 'Earn verified, industry-recognized certificates that strengthen your skills and career prospects.'
     },
     {
-      icon: Users,
-      title: 'Expert Mentors',
-      description: 'Learn from industry professionals and experienced developers'
+      icon: Cpu,
+      title: 'AI-Powered Learning',
+      description: 'Get personalized learning, smart code help, and real-time AI feedback.'
     },
-    {
-      icon: Briefcase,
-      title: 'Job Placement',
-      description: 'Direct connection to companies hiring developers'
+        {
+      icon: Zap,
+      title: 'Industry-Standard Projects',
+      description: 'Build real-world applications and a strong portfolio showcasing your skills.'
     },
+   
     {
       icon: Globe,
-      title: 'Global Community',
-      description: 'Connect with students and developers worldwide'
+      title: 'Professional Network',
+      description: 'Connect with learners, professionals, and experts across the global tech community.'
     },
-    {
-      icon: Zap,
-      title: 'Hands-on Projects',
-      description: 'Build real-world projects for your portfolio'
+     {
+      icon: Briefcase,
+      title: 'Career Placement Services',
+      description: 'Connect directly with companies hiring skilled developers through our employment network.'
     }
+
   ];
 
   const learningPath = [
     {
       step: '01',
-      title: 'Choose Your Path',
-      description: 'Select from web development, mobile apps, cloud computing, or data science'
+      title: 'Select Specialization',
+      description: 'Choose from web development, mobile applications, cloud computing, or data science specializations'
     },
     {
       step: '02',
-      title: 'Start Learning',
-      description: 'Begin with fundamentals and progress through structured courses'
+      title: 'Engage with AI-Powered Curriculum',
+      description: 'Progress through structured learning modules with personalized AI assistance and adaptive content delivery'
     },
     {
       step: '03',
-      title: 'Build Projects',
-      description: 'Apply your knowledge by building real-world applications'
+      title: 'Develop Professional Portfolio',
+      description: 'Apply acquired knowledge through industry-standard projects that demonstrate practical competencies'
     },
     {
       step: '04',
-      title: 'Get Certified',
-      description: 'Complete assessments and earn industry-recognized certifications'
+      title: 'Obtain Attested Certification',
+      description: 'Complete comprehensive assessments and earn industry-recognized, verified certifications'
     },
     {
       step: '05',
-      title: 'Land Your Job',
-      description: 'Use our job placement services to find your dream tech position'
+      title: 'Secure Professional Employment',
+      description: 'Leverage our career placement services and company network to obtain your desired technology position'
     }
   ];
 
@@ -185,11 +188,10 @@ const Students = () => {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Start Your Tech Career
+            Advance Your Technology Career
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8">
-            Access world-class software development education completely free. 
-            Learn from experts, build real projects, and land your dream job.
+           Access AI-powered software development education. Gain industry skills, earn certifications, build your portfolio, and launch your tech career.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
@@ -209,10 +211,10 @@ const Students = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose EduX for Learning?
+              Why Professionals Choose EduX
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We provide everything you need to succeed in the tech industry, completely free.
+              Comprehensive resources and support systems designed to ensure your success in the technology industry.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -237,10 +239,10 @@ const Students = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Your Learning Journey
+              Your Professional Development Journey
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Follow our proven 5-step process to become a job-ready developer.
+              Follow our structured five-phase process to become a qualified, industry-ready technology professional.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
@@ -258,7 +260,7 @@ const Students = () => {
       </section>
 
       {/* Courses Section */}
-      <section className="py-20 bg-white">
+      {/* <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -320,17 +322,17 @@ const Students = () => {
             );
           })}
         </div>
-      </section>
+      </section> */}
 
       {/* Top Students Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-               Top Performing Students
+               Distinguished Graduate Professionals
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Meet our outstanding students who have achieved exceptional results and are leading the way in their tech careers.
+              Exemplary graduates who have demonstrated exceptional performance and successfully transitioned into rewarding technology careers.
             </p>
           </div>
           
@@ -343,8 +345,8 @@ const Students = () => {
                 </div>
                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
                   <img 
-                    src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-                    alt="Sarah Johnson"
+                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+                    alt="Abiha Ali"
                     className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
                   />
                 </div>
@@ -352,7 +354,7 @@ const Students = () => {
               
               <div className="pt-16 pb-8 px-6 text-center">
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Sarah Johnson</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Abiha Ali</h3>
                   <p className="text-blue-600 font-medium">Full Stack Developer</p>
                 </div>
                 
@@ -373,7 +375,8 @@ const Students = () => {
                 
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "EduX transformed my career! I went from zero coding knowledge to landing a job at a top tech company in just 6 months."
+                    "EduX provided the comprehensive training and professional support necessary to transition into a thriving technology career. 
+                    The AI-powered learning platform and attested certifications were instrumental in securing my position at a leading firm."
                   </p>
                 </div>
                 
@@ -403,7 +406,7 @@ const Students = () => {
               
               <div className="pt-16 pb-8 px-6 text-center">
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Marcus Chen</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Muhammad Ahmad</h3>
                   <p className="text-blue-600 font-medium">Data Scientist</p>
                 </div>
                 
@@ -424,7 +427,8 @@ const Students = () => {
                 
                 <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "The data science track at EduX is incredible. The hands-on projects and mentor support helped me master complex algorithms."
+                    "The data science curriculum at EduX is exceptional. The combination of AI-assisted learning, hands-on projects, 
+                    and professional mentorship enabled me to master complex algorithms and secure a competitive position in the field."
                   </p>
                 </div>
                 
@@ -446,7 +450,7 @@ const Students = () => {
                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
                   <img 
                     src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
-                    alt="Priya Patel"
+                    alt="Hajraa Zeeshan"
                     className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
                   />
                 </div>
@@ -454,7 +458,7 @@ const Students = () => {
               
               <div className="pt-16 pb-8 px-6 text-center">
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Priya Patel</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Hajraa Zeeshan</h3>
                   <p className="text-blue-600 font-medium">Mobile Developer</p>
                 </div>
                 
@@ -475,7 +479,8 @@ const Students = () => {
                 
                 <div className="bg-gradient-to-r from-indigo-50 to-violet-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "EduX gave me the confidence to pursue mobile development. Now I'm building apps that thousands of users love!"
+                    "EduX provided me with the technical competencies and professional confidence necessary to pursue mobile development. 
+                    I now develop applications serving thousands of users worldwide, thanks to their comprehensive training program."
                   </p>
                 </div>
                 
@@ -501,20 +506,28 @@ const Students = () => {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Start Learning?
+            Commence Your Professional Development
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join thousands of students who are already building their tech careers with EduX.
+            Join thousands of professionals who are building successful technology careers through EduX's comprehensive training platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
-              Get Started Now
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </button>
-            <button className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200">
-              View All Courses
-            </button>
-          </div>
+
+          <Link
+            to="/register/student"
+            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105"
+          >
+            Enroll Today
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Link>
+
+          {/* <Link
+            to="/courses"
+            className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200"
+          >
+            View All Courses
+          </Link> */}
+</div>
         </div>
       </section>
     </div>

@@ -5,43 +5,43 @@ const Companies = () => {
     {
       icon: Search,
       title: 'Talent Discovery',
-      description: 'Find qualified developers from our pool of certified students and professionals',
-      features: ['Advanced filtering', 'Skill matching', 'Portfolio review', 'Background verification']
+      description: 'Access qualified technology professionals from our curated pool of certified graduates and experienced practitioners',
+      features: ['Advanced candidate filtering', 'Competency-based matching', 'Portfolio verification', 'Credential authentication']
     },
     {
       icon: Users,
-      title: 'Direct Recruitment',
-      description: 'Connect directly with candidates through our streamlined hiring process',
-      features: ['Direct messaging', 'Interview scheduling', 'Candidate tracking', 'Hiring analytics']
+      title: 'Streamlined Recruitment',
+      description: 'Engage directly with candidates through our efficient, professionally managed hiring infrastructure',
+      features: ['Direct candidate communication', 'Integrated interview scheduling', 'Applicant tracking system', 'Recruitment analytics dashboard']
     },
     {
       icon: Building,
-      title: 'Company Branding',
-      description: 'Build your company profile and attract top talent to your organization',
-      features: ['Company profiles', 'Job postings', 'Brand showcase', 'Employee testimonials']
+      title: 'Employer Branding',
+      description: 'Establish your corporate presence and attract premier talent through professional company profiles',
+      features: ['Comprehensive company profiles', 'Position posting capabilities', 'Brand development tools', 'Employee testimonials']
     }
   ];
 
   const hiringProcess = [
     {
       step: '01',
-      title: 'Post Job Opening',
-      description: 'Create detailed job descriptions with requirements and benefits'
+      title: 'Post Position Opening',
+      description: 'Create comprehensive position descriptions detailing requirements, responsibilities, and compensation packages'
     },
     {
       step: '02',
-      title: 'Review Candidates',
-      description: 'Browse through qualified candidates with verified skills and certifications'
+      title: 'Evaluate Candidates',
+      description: 'Review qualified professionals with verified competencies, attested certifications, and comprehensive portfolios'
     },
     {
       step: '03',
-      title: 'Connect & Interview',
-      description: 'Schedule interviews and communicate directly with potential hires'
+      title: 'Engage & Interview',
+      description: 'Coordinate interviews and maintain professional communication with prospective team members'
     },
     {
       step: '04',
-      title: 'Hire & Onboard',
-      description: 'Complete the hiring process and welcome new team members'
+      title: 'Recruit & Integrate',
+      description: 'Finalize recruitment agreements and facilitate seamless onboarding of new technology professionals'
     }
   ];
 
@@ -120,11 +120,12 @@ const Companies = () => {
       <section className="bg-gradient-to-r from-green-600 to-teal-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Find Your Next Tech Talent
+            Discover Exceptional Technical Talent
           </h1>
           <p className="text-xl md:text-2xl text-green-100 max-w-3xl mx-auto mb-8">
-            Access a pool of certified developers, connect directly with candidates, 
-            and build your dream team through our comprehensive hiring platform.
+            Access a curated pool of certified technology professionals with verified competencies. Connect directly with 
+            qualified candidates holding attested certifications, and build high-performing teams through our comprehensive 
+            talent acquisition platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button className="inline-flex items-center px-8 py-4 bg-white text-green-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
@@ -143,10 +144,10 @@ const Companies = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Comprehensive Hiring Solutions
+              Comprehensive Talent Acquisition Solutions
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to find, evaluate, and hire the best tech talent for your company.
+              Complete suite of professional tools and services for identifying, evaluating, and recruiting exceptional technology talent.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -179,10 +180,10 @@ const Companies = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Simple 4-Step Hiring Process
+              Streamlined Four-Phase Recruitment Process
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our streamlined process makes hiring tech talent faster and more efficient.
+              Our systematic approach ensures efficient identification and engagement with qualified technical professionals.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -204,10 +205,10 @@ const Companies = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Popular Job Categories
+              Technology Specialization Areas
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Find candidates across all major tech domains with verified skills and experience.
+              Discover candidates across all major technology domains with verified competencies and professional experience.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -288,10 +289,10 @@ const Companies = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Top Companies Hiring with EduX
+              Premier Organizations Recruiting Through EduX
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Meet the leading companies that trust EduX to find exceptional tech talent and build world-class development teams.
+              Leading companies that rely on EduX to identify exceptional technical talent and build world-class development teams.
             </p>
           </div>
           
@@ -335,7 +336,8 @@ const Companies = () => {
                 
                 <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "EduX has revolutionized our hiring process. We've built an exceptional development team that drives our SaaS platform's success."
+                    "EduX has fundamentally transformed our talent acquisition strategy. We have assembled an exceptional 
+                    development team with verified competencies that consistently drives our SaaS platform's continued success and growth."
                   </p>
                 </div>
                 
@@ -392,7 +394,8 @@ const Companies = () => {
                 
                 <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "The quality of developers from EduX is outstanding. Our mobile apps have never been better, thanks to their exceptional talent pool."
+                    "The caliber of technical professionals available through EduX is consistently outstanding. Our mobile applications 
+                    have achieved unprecedented quality standards through the exceptional talent acquired via their platform."
                   </p>
                 </div>
                 
@@ -449,7 +452,8 @@ const Companies = () => {
                 
                 <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-700 italic">
-                    "EduX's cloud experts have transformed our infrastructure. We've achieved 40% cost reduction while improving system reliability."
+                    "EduX's cloud infrastructure specialists have revolutionized our technical architecture. We have achieved a 40% 
+                    reduction in operational costs while significantly improving system reliability and performance metrics."
                   </p>
                 </div>
                 
@@ -481,18 +485,18 @@ const Companies = () => {
       <section className="py-20 bg-gradient-to-r from-green-600 to-teal-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Build Your Dream Team?
+            Build Your High-Performance Team
           </h2>
           <p className="text-xl text-green-100 mb-8">
-            Join hundreds of companies who are already hiring top tech talent through EduX.
+            Join hundreds of organizations currently recruiting premier technology talent through EduX's comprehensive platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="inline-flex items-center px-8 py-4 bg-white text-green-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105">
-              Start Hiring Now
+              Begin Recruitment
               <ArrowRight className="ml-2 w-5 h-5" />
             </button>
             <button className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-green-600 transition-all duration-200">
-              Schedule Demo
+              Request Consultation
             </button>
           </div>
         </div>

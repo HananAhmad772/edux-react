@@ -5,22 +5,22 @@ const About = () => {
     {
       icon: Heart,
       title: 'Accessibility',
-      description: 'Making quality education accessible to everyone, regardless of their financial background.'
+      description: 'Ensuring equitable access to premium technology education for all qualified individuals, irrespective of socioeconomic background.'
     },
     {
       icon: Target,
       title: 'Excellence',
-      description: 'Maintaining the highest standards in course content and delivery methods.'
+      description: 'Upholding rigorous academic standards and industry-aligned curricula through continuous quality assurance and improvement.'
     },
     {
       icon: Users,
-      title: 'Community',
-      description: 'Building a supportive network of learners, mentors, and industry professionals.'
+      title: 'Professional Community',
+      description: 'Cultivating a collaborative ecosystem of learners, industry experts, and corporate partners committed to mutual growth and success.'
     },
     {
       icon: Globe,
       title: 'Innovation',
-      description: 'Continuously evolving our platform with cutting-edge technologies and methodologies.'
+      description: 'Leveraging advanced artificial intelligence and emerging technologies to deliver personalized, adaptive learning experiences at scale.'
     }
   ];
 
@@ -54,7 +54,7 @@ const About = () => {
             About EduX
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Revolutionizing education by making high-quality software development skills accessible to everyone, completely free.
+            Transforming careers through AI-powered education, industry-recognized certifications, and direct pathways to employment opportunities.
           </p>
         </div>
       </section>
@@ -68,24 +68,26 @@ const About = () => {
                 Our Mission
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                At EduX, we believe that quality education should be accessible to everyone, regardless of their financial situation. 
-                Our mission is to bridge the gap between traditional education and the rapidly evolving tech industry.
+                EduX represents a paradigm shift in professional technology education. Our mission is to democratize access to 
+                world-class software development training through artificial intelligence, ensuring that financial barriers never 
+                prevent talented individuals from pursuing their career aspirations in the technology sector.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                We're committed to providing free, high-quality software development education that empowers students to build 
-                successful careers in technology while helping companies find the talent they need.
+                We are committed to creating a comprehensive ecosystem that connects aspiring developers with industry-leading 
+                educational resources, provides attested certifications upon completion, and facilitates direct employment opportunities 
+                with leading companies actively seeking qualified technical talent.
               </p>
               <div className="flex items-center space-x-4">
                 <CheckCircle className="w-6 h-6 text-green-500" />
-                <span className="text-gray-700 font-medium">Free for all students</span>
+                <span className="text-gray-700 font-medium">Complimentary access for all aspiring professionals</span>
               </div>
               <div className="flex items-center space-x-4 mt-2">
                 <CheckCircle className="w-6 h-6 text-green-500" />
-                <span className="text-gray-700 font-medium">Industry-recognized certifications</span>
+                <span className="text-gray-700 font-medium">Attested, industry-recognized certifications</span>
               </div>
               <div className="flex items-center space-x-4 mt-2">
                 <CheckCircle className="w-6 h-6 text-green-500" />
-                <span className="text-gray-700 font-medium">Direct job placement assistance</span>
+                <span className="text-gray-700 font-medium">Direct employment pathways with partner companies</span>
               </div>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl">
@@ -93,8 +95,9 @@ const About = () => {
                 <Eye className="w-24 h-24 text-blue-600 mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">Vision 2030</h3>
                 <p className="text-gray-600">
-                  To become the world's leading platform for free software development education, 
-                  empowering 1 million+ students to achieve their tech career dreams.
+                  To establish EduX as the premier global platform for AI-powered software development education, 
+                  empowering over one million professionals to achieve sustainable careers in technology while 
+                  serving as the primary talent pipeline for forward-thinking organizations worldwide.
                 </p>
               </div>
             </div>
@@ -138,7 +141,7 @@ const About = () => {
               Meet Our Team
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              The passionate individuals behind EduX who are committed to transforming education.
+              The dedicated professionals behind EduX who are committed to revolutionizing technology education and career development.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -166,7 +169,7 @@ const About = () => {
               EduX by the Numbers
             </h2>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Our impact in numbers - every statistic represents a life changed through education.
+              Quantifying our commitment to excellence - each metric represents a professional career launched and a company strengthened.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

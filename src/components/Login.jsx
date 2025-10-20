@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import AuthLayout from './AuthLayout';
+import api from '../api/axios';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,9 +17,9 @@ const Login = () => {
 
   const userTypes = [
     { value: 'student', label: 'Student', icon: '👨‍🎓' },
-    { value: 'mentor', label: 'Mentor', icon: '👨‍🏫' },
+    // { value: 'mentor', label: 'Mentor', icon: '👨‍🏫' },
     { value: 'company', label: 'Company', icon: '🏢' },
-    { value: 'professional', label: 'Professional', icon: '👨‍💼' }
+    { value: 'job-seeker', label: 'Job Seeker', icon: '👨‍💼' }
   ];
 
   const handleChange = (e) => {
@@ -47,8 +48,8 @@ const Login = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -63,35 +64,47 @@ const Login = () => {
     }
 
     setIsLoading(true);
+    setErrors({});
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password,
+        user_type: formData.userType,
+      });
+
+      const { token, user } = response.data.data;
+
+      localStorage.setItem('token', token);
+
+      // Optionally save user info
+      localStorage.setItem('userType', formData.userType);
       
-      // Here you would make the actual API call
-      console.log('Login attempt:', formData);
+      // console.log('Login attempt:', formData);
       
       // Redirect based on user type
       switch (formData.userType) {
         case 'student':
-          navigate('/students');
+          navigate('/student/dashboard');
           break;
-        case 'mentor':
-          navigate('/mentors');
+        case 'job-seeker':
+          navigate('/jobseeker/dashboard');
           break;
         case 'company':
-          navigate('/companies');
+          navigate('/company/dashboard');
           break;
-        case 'professional':
-          navigate('/skills-exchange');
-          break;
+      
         default:
           navigate('/');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Login failed. Please try again.' });
-    } finally {
+       if (error.response && error.response.data && error.response.data.message) {
+    setErrors({ general: error.response.data.message });
+  } else {
+    setErrors({ general: 'Login failed. Please try again.' });
+  }
+
       setIsLoading(false);
     }
   };
@@ -256,23 +269,23 @@ const Login = () => {
             Register as Student
           </Link>
           <Link
-            to="/register/mentor"
+            to="/register/job-seeker"
             className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
           >
-            Register as Mentor
+            Register as Job Seeker
           </Link>
           <Link
             to="/register/company"
             className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
           >
-            Register Company
+            Register as Company
           </Link>
-          <Link
+          {/* <Link
             to="/register/professional"
             className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
           >
             Register Professional
-          </Link>
+          </Link> */}
         </div>
       </form>
     </AuthLayout>
