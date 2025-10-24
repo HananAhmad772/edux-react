@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { X, ArrowRight, ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, CheckCircle, Sparkles, Brain } from 'lucide-react';
 import FieldOfInterestStep from './wizard-steps/FieldOfInterestStep';
 import SpecializationStep from './wizard-steps/SpecializationStep';
 import LanguagePreferenceStep from './wizard-steps/LanguagePreferenceStep';
@@ -13,6 +13,8 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
   const [showCongrats, setShowCongrats] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showQuizIntro, setShowQuizIntro] = useState(false);
   const [wizardData, setWizardData] = useState({
     fieldOfInterest: '',
     currentFocus: '',
@@ -32,13 +34,12 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
     quizScore: 0
   });
 
-  // Define the structure of steps and questions
+  // Define the structure of steps and questions (now only 4 steps)
   const stepStructure = {
     1: { questions: 2, title: 'Field of Interest' },
     2: { questions: 1, title: 'Specialization' },
     3: { questions: 1, title: 'Programming Languages' },
-    4: { questions: 1, title: 'Goals & Experience' }, // Changed from 3 to 1 - all questions now on one screen
-    5: { questions: 8, title: 'Quick Assessment' }
+    4: { questions: 1, title: 'Goals & Experience' }
   };
 
   const totalQuestions = Object.values(stepStructure).reduce((sum, step) => sum + step.questions, 0);
@@ -80,18 +81,17 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
           setCurrentStep(prev => prev + 1);
           setCurrentQuestion(1);
         }, 2000);
-      } else if (currentStep === 4) {
-        // After step 4, trigger registration
-        handleRegistration();
       } else {
-        // Step 5 (quiz) - complete
-        handleQuizComplete();
+        // After step 4, show quiz introduction
+        setShowQuizIntro(true);
       }
     }
   };
 
   const handleBack = () => {
-    if (currentQuestion > 1) {
+    if (showQuizIntro) {
+      setShowQuizIntro(false);
+    } else if (currentQuestion > 1) {
       setCurrentQuestion(prev => prev - 1);
     } else if (currentStep > 1) {
       const prevStep = currentStep - 1;
@@ -116,9 +116,10 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
       setIsRegistering(false);
       setRegistrationComplete(true);
       
-      // After showing success message, redirect to login after 3 seconds
+      // After showing success message, show quiz intro after 3 seconds
       setTimeout(() => {
-        onComplete();
+        setRegistrationComplete(false);
+        setShowQuizIntro(true);
       }, 3000);
       
     } catch (error) {
@@ -133,8 +134,13 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
     }
   };
 
+  const handleStartQuiz = () => {
+    setShowQuizIntro(false);
+    setShowQuiz(true);
+  };
+
   const handleQuizComplete = () => {
-    // After quiz completion, redirect to login
+    // After quiz completion, redirect to dashboard
     onComplete();
   };
 
@@ -179,9 +185,62 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             Account Created Successfully!
           </h3>
           <p className="text-lg text-gray-600 max-w-md">
-            Your account has been created. You will be redirected to the login page shortly.
+            Your account has been created. Getting ready for your skill assessment...
           </p>
         </div>
+      );
+    }
+
+    if (showQuizIntro) {
+      return (
+        <div className="flex flex-col items-center justify-center text-center space-y-6 pb-8 ">
+          <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+            <Brain className="w-12 h-12 text-white" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900">
+            Let's Check Your Skills!
+          </h3>
+          <p className="text-lg text-gray-600 max-w-md">
+            To better understand your current programming knowledge and learning approach, 
+            we'll ask you a few quick questions. This will help us customize your learning path.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+            <p className="text-sm text-blue-800">
+              🎯 The quiz contains 8 questions and should take less than 5 minutes to complete.
+            </p>
+          </div>
+          
+          <div className="flex justify-center space-x-4 mt-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft className="mr-2 w-4 h-4" />
+              Back
+            </button>
+            
+            <button
+              onClick={handleStartQuiz}
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
+            >
+              Start Quiz
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (showQuiz) {
+      return (
+        <QuizStep 
+          data={wizardData}
+          onUpdate={updateWizardData}
+          onComplete={handleQuizComplete}
+          onBack={() => setShowQuiz(false)}
+          currentQuestion={1}
+          canGoBack={true}
+        />
       );
     }
 
@@ -230,17 +289,6 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             canGoBack={true}
           />
         );
-      case 5:
-        return (
-          <QuizStep 
-            data={wizardData}
-            onUpdate={updateWizardData}
-            onComplete={handleQuizComplete}
-            onBack={handleBack}
-            currentQuestion={currentQuestion}
-            canGoBack={false}
-          />
-        );
       default:
         return null;
     }
@@ -258,13 +306,17 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex-shrink-0">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold">Complete Your Profile</h2>
+              <h2 className="text-2xl font-bold">
+                {showQuizIntro ? "Skill Assessment" : showQuiz ? "Quick Quiz" : "Complete Your Profile"}
+              </h2>
               <p className="text-blue-100 mt-1">
-                Step {currentStep} of 5: {stepStructure[currentStep]?.title}
+                {showQuizIntro ? "Getting to know your skills" : showQuiz ? "Question 1 of 8" : `Step ${currentStep} of 4: ${stepStructure[currentStep]?.title}`}
               </p>
-              <p className="text-blue-200 text-sm mt-1">
-                Overall Progress: Question {currentQuestionNumber} of {totalQuestions}
-              </p>
+              {!showQuizIntro && !showQuiz && (
+                <p className="text-blue-200 text-sm mt-1">
+                  Overall Progress: Question {currentQuestionNumber} of {totalQuestions}
+                </p>
+              )}
             </div>
             <button 
               onClick={onClose}

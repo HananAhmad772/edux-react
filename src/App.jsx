@@ -20,6 +20,12 @@ import AdminLogin from './components/AdminLogin';
 import SuperAdminDashboard from './pages/Admin/SuperAdminDashboard';
 import StudentDashboard from './pages/Dashboard/StudentDashboard';
 import CompanyDashboard from './pages/Dashboard/CompanyDashboard';
+import AIMentorPage from './pages/Dashboard/AIMentorPage';
+import LearningJourneyPage from './pages/Dashboard/LearningJourneyPage';
+import DailyChallengePage from './pages/Dashboard/DailyChallengePage';
+import ProgressFeedbackPage from './pages/Dashboard/ProgressFeedbackPage';
+import AchievementsPage from './pages/Dashboard/AchievementsPage';
+import SettingsPage from './pages/Dashboard/SettingsPage';
 import './App.css';
 import PrivacyPolicy from './pages/landing-pages/PrivacyPolicy';
 import TermsOfService from './pages/landing-pages/TermsOfServices';
@@ -68,18 +74,27 @@ function App() {
                   <Route path="/verify-otp" element={<VerifyOTP />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
-
-            {/* for login Users */}
-                <Routes>
-                  <Route path="/student/dashboard" element={<StudentDashboard />} />
-                  <Route path="/company/dashboard" element={<CompanyDashboard />} />
-                  <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
-                  {/* <Route path="/profile" element={<Profile />} /> */}
-                </Routes>
               </main>
               <Footer />
             </>
           } />
+          
+          {/* Student Dashboard Routes - No Navbar/Footer */}
+          <Route path="/student/*" element={
+            <Routes>
+              <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="courses" element={<LearningJourneyPage />} />
+              <Route path="ai-mentor" element={<AIMentorPage />} />
+              <Route path="projects" element={<DailyChallengePage />} />
+              <Route path="progress" element={<ProgressFeedbackPage />} />
+              <Route path="certifications" element={<AchievementsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Routes>
+          } />
+          
+          {/* Other Dashboard Routes - No Navbar/Footer */}
+          <Route path="/company/dashboard" element={<CompanyDashboard />} />
+          <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
         </Routes>
       </div>
     </Router>

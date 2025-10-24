@@ -180,7 +180,8 @@ const QuizStep = ({ data, onUpdate, onComplete, onBack }) => {
   };
 
   const currentQ = quizQuestions[currentQuizQuestion - 1];
-  const progress = (currentQuizQuestion / quizQuestions.length) * 100;
+  // Fix: Progress should be 0% for the first question (1 of 8)
+  const progress = currentQuizQuestion === 1 ? 0 : ((currentQuizQuestion - 1) / quizQuestions.length) * 100;
 
   // Show completed state
   if (quizCompleted) {
@@ -312,7 +313,7 @@ const QuizStep = ({ data, onUpdate, onComplete, onBack }) => {
       <div className="flex justify-between pt-6">
         <button
           onClick={currentQuizQuestion === 1 ? onBack : handlePrevious}
-          className="flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center px-6 py-3 m-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           {currentQuizQuestion === 1 ? 'Back to Goals' : 'Previous'}
@@ -320,8 +321,9 @@ const QuizStep = ({ data, onUpdate, onComplete, onBack }) => {
         
         <button
           onClick={handleNext}
-          disabled={!answers[currentQ.id]}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          // Fix: Enable button when an answer is selected for the current question
+          disabled={currentQ.type === 'mcq' ? answers[currentQ.id] === undefined : !(answers[currentQ.id] && answers[currentQ.id].trim())}
+          className="px-6 py-3 m-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {currentQuizQuestion === quizQuestions.length ? 'Finish Assessment' : 'Next Question'}
         </button>

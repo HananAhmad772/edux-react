@@ -203,9 +203,9 @@ const fieldofinterestOptions = [
   };
 
   const handleWizardComplete = () => {
-    // Close wizard and redirect to login
+    // Close wizard and redirect to student dashboard
     setShowWizard(false);
-    navigate("/login");
+    navigate("/student/dashboard");
   };
 
   const handleWizardClose = () => {
