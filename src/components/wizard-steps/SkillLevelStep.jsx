@@ -1,111 +1,113 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Target, Clock, Trophy, ArrowRight, ArrowLeft } from 'lucide-react';
+import api from '../../api/axios';
 
 const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGoBack }) => {
-  const [skillLevel, setSkillLevel] = useState(data.skillLevel || '');
-  const [finalGoal, setFinalGoal] = useState(data.finalGoal || '');
-  const [timeCommitment, setTimeCommitment] = useState(data.timeCommitment || '');
+  const [skillLevel, setSkillLevel] = useState(data.current_skill_level || '');
+  const [finalGoal, setFinalGoal] = useState(data.main_goal || '');
+  const [timeCommitment, setTimeCommitment] = useState(data.time_per_week || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const skillLevels = [
     {
-      id: 'complete_beginner',
-      title: 'Complete Beginner',
-      description: 'I have no programming experience',
+      id: 'beginner',
+      title: 'Beginner',
+      description: 'I have little to no programming experience',
       icon: '🌱',
-      details: 'Perfect! We\'ll start from the very basics and build up your knowledge step by step.'
-    },
-    {
-      id: 'some_basics',
-      title: 'Know Some Basics',
-      description: 'I understand basic programming concepts',
-      icon: '🌿',
-      details: 'Great! You have a foundation to build upon. We can focus on practical applications.'
+      details: 'I can build simple projects with guidance'
     },
     {
       id: 'intermediate',
       title: 'Intermediate',
-      description: 'I can build simple projects',
-      icon: '🌳',
-      details: 'Excellent! You\'re ready for more complex projects and advanced concepts.'
+      description: 'I can build simple projects independently',
+      icon: '🌿',
+      details: 'I understand core programming concepts and can solve problems with some research'
     },
     {
       id: 'advanced',
       title: 'Advanced',
-      description: 'I have significant experience',
-      icon: '🏆',
-      details: 'Amazing! We can help you specialize further and tackle challenging projects.'
+      description: 'I have significant experience and can build complex applications',
+      icon: '🌳',
+      details: 'I can architect and build complex applications with best practices'
     }
   ];
 
   const goalOptions = [
     {
-      id: 'get_job',
+      id: 'Get a Programming Job',
       title: 'Get a Programming Job',
       description: 'I want to become a professional developer',
       icon: '💼',
-      timeline: '6-12 months with dedicated learning'
+      timeline: 'Designed to match your individual learning speed.'
     },
     {
-      id: 'freelance',
+      id: 'Start Freelancing',
       title: 'Start Freelancing',
       description: 'I want to work as a freelance developer',
       icon: '🌐',
-      timeline: '4-8 months to build portfolio'
+      timeline: 'Develop client-ready skills and launch your freelance journey.'
     },
     {
-      id: 'build_projects',
+      id: 'Build Personal Projects',
       title: 'Build Personal Projects',
       description: 'I want to create my own applications',
       icon: '🛠️',
-      timeline: '3-6 months for first project'
+      timeline: 'Apply your skills to build impactful, real-world projects.'
     },
     {
-      id: 'improve_skills',
+      id: 'Improve Current Skills',
       title: 'Improve Current Skills',
       description: 'I want to enhance my existing knowledge',
       icon: '📈',
       timeline: 'Ongoing skill development'
     },
     {
-      id: 'academic_goals',
+      id: 'Academic Requirements',
       title: 'Academic Requirements',
       description: 'I need programming skills for my studies',
       icon: '🎓',
       timeline: 'Based on academic schedule'
     },
     {
-      id: 'career_change',
+      id: 'Career Change',
       title: 'Career Change',
       description: 'I want to transition into tech',
       icon: '🔄',
-      timeline: '8-18 months transition period'
+      timeline: 'Redefine your career by mastering in-demand tech skills.'
+    },
+    {
+      id: 'Start a Tech Startup',
+      title: 'Start a Tech Startup',
+      description: 'I want to build and launch my own product',
+      icon: '🚀',
+      timeline: 'Build the technical foundation to launch your own startup.'
     }
   ];
 
   const timeCommitmentOptions = [
     {
-      id: 'casual',
+      id: '2-5 hours per week',
       title: '2-5 hours per week',
       description: 'Learning at a relaxed pace',
       icon: '🐌',
       suitable: 'Perfect for busy schedules'
     },
     {
-      id: 'moderate',
+      id: '5-10 hours per week',
       title: '5-10 hours per week',
       description: 'Steady progress with good balance',
       icon: '🚶',
       suitable: 'Recommended for most learners'
     },
     {
-      id: 'intensive',
+      id: '10-20 hours per week',
       title: '10-20 hours per week',
       description: 'Fast-paced learning',
       icon: '🏃',
       suitable: 'For dedicated learners'
     },
     {
-      id: 'bootcamp',
+      id: '20+ hours per week',
       title: '20+ hours per week',
       description: 'Intensive, bootcamp-style learning',
       icon: '🚀',
@@ -117,9 +119,9 @@ const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGo
   const handleUpdate = useCallback(() => {
     if (skillLevel || finalGoal || timeCommitment) {
       onUpdate({
-        skillLevel,
-        finalGoal,
-        timeCommitment
+        current_skill_level: skillLevel,
+        main_goal: finalGoal,
+        time_per_week: timeCommitment
       });
     }
   }, [skillLevel, finalGoal, timeCommitment, onUpdate]);
@@ -129,9 +131,42 @@ const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGo
     handleUpdate();
   }, [handleUpdate]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (skillLevel && finalGoal && timeCommitment) {
-      onNext();
+      setIsSubmitting(true);
+      
+      try {
+        // Collect all wizard data
+        const allWizardData = {
+          major_subject: data.major_subject,
+          current_position: data.current_position,
+          specialization_field: data.specialization_field,
+          preferred_technologies: data.preferred_technologies,
+          current_skill_level: skillLevel,
+          main_goal: finalGoal,
+          time_per_week: timeCommitment
+        };
+        
+        // Get token from localStorage
+        const token = localStorage.getItem('authToken');
+        
+        // Set authorization header
+        if (token) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+        
+        // Make API call to /auth/student/questions with all wizard data
+        const response = await api.post("/auth/student/questions", allWizardData);
+        console.log("All wizard data submitted successfully:", response.data);
+        
+        // Proceed to next step
+        onNext();
+      } catch (error) {
+        console.error("Error submitting wizard data:", error);
+        alert("Failed to submit profile data. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -157,7 +192,7 @@ const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGo
           </h4>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {skillLevels.map((level) => (
             <div
               key={level.id}
@@ -301,11 +336,20 @@ const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGo
         
         <button
           onClick={handleNext}
-          disabled={!skillLevel || !finalGoal || !timeCommitment}
+          disabled={!skillLevel || !finalGoal || !timeCommitment || isSubmitting}
           className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
-          Complete Profile Setup
-          <ArrowRight className="ml-2 w-4 h-4" />
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Submitting...
+            </>
+          ) : (
+            <>
+              Complete Profile Setup
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </>
+          )}
         </button>
       </div>
     </div>

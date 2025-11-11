@@ -17,7 +17,7 @@ const Navbar = () => {
   const userTypeItems = [
     { name: 'Students', path: '/students', icon: GraduationCap },
     { name: 'Companies', path: '/companies', icon: Building },
-    { name: 'Job Seekers', path: '/job-seekers', icon: Users },
+    // { name: 'Job Seekers', path: '/job-seekers', icon: Users },
 
   ];
 
@@ -125,14 +125,14 @@ const Navbar = () => {
                     <Building className="w-4 h-4" />
                     <span>Company</span>
                   </Link>
-                    <Link
+                    {/* <Link
                     to="/register/job-seeker"
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors duration-200"
                     onClick={() => setIsGetStartedDropdownOpen(false)}
                   >
                     <Building className="w-4 h-4" />
                     <span>Job Seeker</span>
-                  </Link>
+                  </Link> */}
                 </div>
               )}
             </div>

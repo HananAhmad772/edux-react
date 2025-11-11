@@ -1,70 +1,92 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Code, Database, Smartphone, Cloud, Brain, Palette, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Code, Database, Smartphone, Cloud, Brain, Palette, ArrowRight, ArrowLeft, Cpu, Gamepad2, Lock, Blocks } from 'lucide-react';
 
 const FieldOfInterestStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGoBack }) => {
-  const [selectedField, setSelectedField] = useState(data.fieldOfInterest || '');
-  const [currentFocus, setCurrentFocus] = useState(data.currentFocus || '');
+  const [selectedField, setSelectedField] = useState(data.major_subject || '');
+  const [currentFocus, setCurrentFocus] = useState(data.current_position || '');
 
   const fieldOptions = [
     {
-      id: 'web_development',
-      title: 'Web Development',
-      description: 'Build websites and web applications',
-      icon: Code,
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      id: 'mobile_development',
-      title: 'Mobile Development',
-      description: 'Create mobile apps for iOS and Android',
-      icon: Smartphone,
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      id: 'data_science',
-      title: 'Data Science & AI',
-      description: 'Analyze data and build intelligent systems',
+      id: 'Artificial Intelligence & Machine Learning',
+      title: 'Artificial Intelligence & Machine Learning',
+      description: 'Build intelligent systems and machine learning models',
       icon: Brain,
       color: 'from-purple-500 to-pink-500'
     },
     {
-      id: 'cloud_computing',
-      title: 'Cloud Computing',
-      description: 'Build scalable cloud infrastructure',
+      id: 'Full-Stack Development',
+      title: 'Full-Stack Development',
+      description: 'Build complete web applications from frontend to backend',
+      icon: Code,
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      id: 'Cloud Computing & DevOps',
+      title: 'Cloud Computing & DevOps',
+      description: 'Deploy and manage scalable cloud infrastructure',
       icon: Cloud,
       color: 'from-orange-500 to-red-500'
     },
     {
-      id: 'database_management',
-      title: 'Database Management',
-      description: 'Design and manage data systems',
+      id: 'Data Science & Analytics',
+      title: 'Data Science & Analytics',
+      description: 'Analyze data and extract meaningful insights',
       icon: Database,
+      color: 'from-green-500 to-emerald-500'
+    },
+    {
+      id: 'Cybersecurity',
+      title: 'Cybersecurity',
+      description: 'Protect systems and data from digital threats',
+      icon: Lock,
+      color: 'from-red-500 to-orange-500'
+    },
+    {
+      id: 'Blockchain & Web3 Development',
+      title: 'Blockchain & Web3 Development',
+      description: 'Build decentralized applications and smart contracts',
+      icon: Blocks,
       color: 'from-indigo-500 to-purple-500'
     },
     {
-      id: 'ui_ux_design',
-      title: 'UI/UX Design',
-      description: 'Design user interfaces and experiences',
+      id: 'Mobile App Development',
+      title: 'Mobile App Development',
+      description: 'Create mobile applications for iOS and Android',
+      icon: Smartphone,
+      color: 'from-teal-500 to-green-500'
+    },
+    {
+      id: 'Game Development',
+      title: 'Game Development',
+      description: 'Design and build interactive games',
+      icon: Gamepad2,
+      color: 'from-yellow-500 to-orange-500'
+    },
+    {
+      id: 'UI/UX Design & Frontend Engineering',
+      title: 'UI/UX Design & Frontend Engineering',
+      description: 'Design user interfaces and build frontend experiences',
       icon: Palette,
       color: 'from-pink-500 to-rose-500'
     }
   ];
 
   const focusOptions = [
-    { id: 'just_starting', label: 'Just getting started with programming' },
-    { id: 'career_change', label: 'Looking to change careers' },
-    { id: 'skill_improvement', label: 'Want to improve existing skills' },
-    { id: 'academic_project', label: 'Working on academic projects' },
-    { id: 'personal_project', label: 'Building personal projects' },
-    { id: 'job_preparation', label: 'Preparing for job interviews' }
+    { id: 'Complete beginner (no coding experience)', label: 'Complete beginner (no coding experience)' },
+    { id: 'Career switcher (coming from another field)', label: 'Career switcher (coming from another field)' },
+    { id: 'Want to improve existing skills', label: 'Want to improve existing skills' },
+    { id: 'Working on academic projects', label: 'Working on academic projects' },
+    { id: 'Building personal projects/portfolio', label: 'Building personal projects/portfolio' },
+    { id: 'Job-ready (preparing for interviews)', label: 'Job-ready (preparing for interviews)' },
+    { id: 'Exploring different tech fields', label: 'Exploring different tech fields' }
   ];
 
   // Use useCallback to prevent function recreation on each render
   const handleUpdate = useCallback(() => {
-    if (selectedField && currentFocus) {
+    if (selectedField || currentFocus) {
       onUpdate({
-        fieldOfInterest: selectedField,
-        currentFocus: currentFocus
+        major_subject: selectedField,
+        current_position: currentFocus
       });
     }
   }, [selectedField, currentFocus, onUpdate]);
@@ -102,7 +124,7 @@ const FieldOfInterestStep = ({ data, onUpdate, onNext, onBack, currentQuestion, 
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-w-6xl mx-auto">
             {fieldOptions.map((field) => {
               const IconComponent = field.icon;
               return (

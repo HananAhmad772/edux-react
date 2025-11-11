@@ -49,9 +49,14 @@ const StudentDashboard = () => {
         className="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition"
       >
         Logout
-      </button>
-    </div>
+//       </button>
+//     </div>
   );
 };
 
 export default StudentDashboard;
+
+/* 
+  NOTE: Job Seeker module is not part of the current project.
+  This file has been commented out as per project requirements.
+*/

@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar, GraduationCap, Building, BookOpen, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar, GraduationCap, Building, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import AuthLayout from './AuthLayout';
 import StudentRegistrationWizard from './StudentRegistrationWizard';
 import api from '../api/axios';
@@ -21,20 +21,13 @@ const StudentRegister = () => {
     dob: '',
     gender: '',
     class_year: '',
-    institute: '',
-    major_subject: ''
+    institute: ''
   });
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showWizard, setShowWizard] = useState(false);
-  const [pendingRegistration, setPendingRegistration] = useState(null);
-  const [validationMessages, setValidationMessages] = useState({
-    email: '',
-    phone: ''
-  });
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -53,75 +46,6 @@ const classYearOptions = [
   { value: "other", label: "Other (Diploma / Certification / Self-Learner)" },
 ];
 
-const fieldofinterestOptions = [
-  { value: 'web_development', label: 'Web Development' },
-  { value: 'mobile_development', label: 'Mobile Development' },
-  { value: 'data_science', label: 'Data Science & AI' },
-  { value: 'cloud_computing', label: 'Cloud Computing' },
-  { value: 'database_management', label: 'Database Management' },
-  { value: 'ui_ux_design', label: 'UI/UX Design' }
-]
-
-
-  // Debounce function to limit API calls
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-  };
-
-  // Validate email uniqueness
-  const validateEmailUniqueness = useCallback(
-    debounce(async (email) => {
-      if (!email || !/\S+@\S+\.\S+/.test(email)) return;
-      
-      try {
-        const response = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`);
-        if (response.data.exists) {
-          setValidationMessages(prev => ({
-            ...prev,
-            email: 'This email is already registered. Please use a different email or login.'
-          }));
-        } else {
-          setValidationMessages(prev => ({
-            ...prev,
-            email: ''
-          }));
-        }
-      } catch (error) {
-        console.error('Email validation error:', error);
-      }
-    }, 500),
-    []
-  );
-
-  // Validate phone uniqueness
-  const validatePhoneUniqueness = useCallback(
-    debounce(async (phone) => {
-      if (!phone) return;
-      
-      try {
-        const response = await api.get(`/auth/check-phone?phone=${encodeURIComponent(phone)}`);
-        if (response.data.exists) {
-          setValidationMessages(prev => ({
-            ...prev,
-            phone: 'This phone number is already registered. Please use a different number or login.'
-          }));
-        } else {
-          setValidationMessages(prev => ({
-            ...prev,
-            phone: ''
-          }));
-        }
-      } catch (error) {
-        console.error('Phone validation error:', error);
-      }
-    }, 500),
-    []
-  );
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -136,13 +60,6 @@ const fieldofinterestOptions = [
         [name]: ''
       }));
     }
-    
-    // Trigger validation for email and phone
-    if (name === 'email') {
-      validateEmailUniqueness(value);
-    } else if (name === 'phone') {
-      validatePhoneUniqueness(value);
-    }
   };
 
   const validateForm = () => {
@@ -156,8 +73,6 @@ const fieldofinterestOptions = [
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
-    } else if (validationMessages.email) {
-      newErrors.email = validationMessages.email;
     }
     
     if (!formData.password) {
@@ -174,8 +89,6 @@ const fieldofinterestOptions = [
     
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
-    } else if (validationMessages.phone) {
-      newErrors.phone = validationMessages.phone;
     }
     
     // Student specific validations
@@ -183,8 +96,6 @@ const fieldofinterestOptions = [
     if (!formData.gender) newErrors.gender = 'Gender is required';
     if (!formData.class_year) newErrors.class_year = 'Class year is required';
     if (!formData.institute) newErrors.institute = 'Institute is required';
-    // Commented out - Field of Interest now handled in wizard
-    // if (!formData.major_subject) newErrors.major_subject = 'Subjects of interest are required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -197,10 +108,41 @@ const fieldofinterestOptions = [
       return;
     }
 
-    // Store form data and show wizard
-    setPendingRegistration(formData);
-    setShowWizard(true);
+    setIsLoading(true);
+    
+    try {
+      // Make API call to /auth/signup
+      const response = await api.post("/auth/signup", formData);
+      console.log("Registration successful:", response.data);
+      
+      // Store the token from the response
+      const token = response?.data?.data?.token;
+
+  // Store token in localStorage if available
+    if (token) {
+      localStorage.setItem('authToken', token);
+      console.log("Token stored successfully:", token);
+    } else {
+      console.warn("No token found in response.");
+    }
+      
+      // Store form data and show wizard
+      setPendingRegistration({...formData, token: response.data.token});
+      setShowWizard(true);
+    } catch (error) {
+      console.error("Registration error:", error);
+      setIsLoading(false);
+      // Handle error - could show error message
+      if (error.response && error.response.data) {
+        alert(`Registration failed: ${error.response.data.message || 'Please try again.'}`);
+      } else {
+        alert("Registration failed. Please try again.");
+      }
+    }
   };
+
+  const [showWizard, setShowWizard] = useState(false);
+  const [pendingRegistration, setPendingRegistration] = useState(null);
 
   const handleWizardComplete = () => {
     // Close wizard and redirect to student dashboard
@@ -307,23 +249,13 @@ const fieldofinterestOptions = [
                 value={formData.email}
                 onChange={handleChange}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.email || validationMessages.email ? 'border-red-300' : 'border-gray-300'
+                  errors.email ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Enter your email"
               />
-              {validationMessages.email && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
             </div>
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-            )}
-            {validationMessages.email && !errors.email && (
-              <p className="mt-1 text-sm text-red-600">{validationMessages.email}</p>
             )}
           </div>
 
@@ -344,23 +276,13 @@ const fieldofinterestOptions = [
                 value={formData.phone}
                 onChange={handleChange}
                 className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.phone || validationMessages.phone ? 'border-red-300' : 'border-gray-300'
+                  errors.phone ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Enter your phone number"
               />
-              {validationMessages.phone && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
             </div>
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-            )}
-            {validationMessages.phone && !errors.phone && (
-              <p className="mt-1 text-sm text-red-600">{validationMessages.phone}</p>
             )}
           </div>
 
@@ -559,63 +481,6 @@ const fieldofinterestOptions = [
               )}
             </div>
           </div>
-
-          {/* Subjects of Interest - COMMENTED OUT - Now handled in wizard */}
-          {/* <div>
-              <label htmlFor="class_year" className="block text-sm font-medium text-gray-700 mb-2">
-                Field of interest
-                </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <BookOpen className="h-5 w-5 text-gray-400" />
-                </div>
-                <select
-                  id="major_subject"
-                  name="major_subject"
-                  required
-                  value={formData.major_subject}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.major_subject ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                >
-                  <option value="">Select Field</option>
-                  {fieldofinterestOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {errors.class_year && (
-                <p className="mt-1 text-sm text-red-600">{errors.class_year}</p>
-              )}
-            </div> */}
-          {/* <div>
-            <label htmlFor="major_subject" className="block text-sm font-medium text-gray-700 mb-2">
-             Field of Interest
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <BookOpen className="h-5 w-5 text-gray-400" />
-              </div>
-              <textarea
-                id="major_subject"
-                name="major_subject"
-                rows="3"
-                required
-                value={formData.major_subject}
-                onChange={handleChange}
-                className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.major_subject ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="e.g., Web Development, Mobile Apps, Data Science, Cloud Computing..."
-              />
-            </div>
-            {errors.major_subject && (
-              <p className="mt-1 text-sm text-red-600">{errors.major_subject}</p>
-            )}
-          </div> */}
         </div>
 
         {/* General Error */}

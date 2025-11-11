@@ -19,7 +19,7 @@ const Login = () => {
     { value: 'student', label: 'Student', icon: '👨‍🎓' },
     // { value: 'mentor', label: 'Mentor', icon: '👨‍🏫' },
     { value: 'company', label: 'Company', icon: '🏢' },
-    { value: 'job-seeker', label: 'Job Seeker', icon: '👨‍💼' }
+    // { value: 'job-seeker', label: 'Job Seeker', icon: '👨‍💼' }
   ];
 
   const handleChange = (e) => {
@@ -268,12 +268,12 @@ const Login = () => {
           >
             Register as Student
           </Link>
-          <Link
+          {/* <Link
             to="/register/job-seeker"
             className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
           >
             Register as Job Seeker
-          </Link>
+          </Link> */}
           <Link
             to="/register/company"
             className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"

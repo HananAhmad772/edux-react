@@ -1,137 +1,408 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Monitor, Server, Layers, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Monitor, Server, Layers, ArrowRight, ArrowLeft, Cpu, Database, Smartphone, Gamepad2, Lock, Blocks, Palette, Cloud, Brain } from 'lucide-react';
 
 const SpecializationStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGoBack }) => {
-  const [selectedSpecialization, setSelectedSpecialization] = useState(data.specialization || '');
+  const [selectedSpecialization, setSelectedSpecialization] = useState(data.specialization_field || '');
 
   // Define specializations based on field of interest
   const getSpecializationOptions = () => {
-    switch (data.fieldOfInterest) {
-      case 'web_development':
+    switch (data.major_subject) {
+      case 'Artificial Intelligence & Machine Learning':
         return [
           {
-            id: 'frontend',
-            title: 'Frontend Development',
-            description: 'Focus on user interfaces, user experience, and client-side development',
-            icon: Monitor,
-            color: 'from-blue-500 to-cyan-500',
-            details: [
-              'HTML, CSS, JavaScript',
-              'React, Vue, Angular',
-              'Responsive Design',
-              'User Experience (UX)'
-            ]
-          },
-          {
-            id: 'backend',
-            title: 'Backend Development',
-            description: 'Focus on server-side logic, databases, and API development',
-            icon: Server,
-            color: 'from-green-500 to-emerald-500',
-            details: [
-              'Server-side Programming',
-              'Database Management',
-              'API Development',
-              'Security & Authentication'
-            ]
-          },
-          {
-            id: 'fullstack',
-            title: 'Full Stack Development',
-            description: 'Learn both frontend and backend development',
-            icon: Layers,
+            id: 'Deep Learning',
+            title: 'Deep Learning',
+            description: 'Neural networks and deep learning architectures',
+            icon: Brain,
             color: 'from-purple-500 to-pink-500',
             details: [
-              'Frontend Technologies',
-              'Backend Technologies',
-              'Database Design',
-              'DevOps Basics'
+              'Neural Networks',
+              'Convolutional Neural Networks',
+              'Recurrent Neural Networks',
+              'Transformers'
+            ]
+          },
+          {
+            id: 'NLP',
+            title: 'NLP',
+            description: 'Natural Language Processing and understanding',
+            icon: Layers,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'Text Processing',
+              'Language Models',
+              'Sentiment Analysis',
+              'Chatbots'
+            ]
+          },
+          {
+            id: 'Computer Vision',
+            title: 'Computer Vision',
+            description: 'Image and video analysis systems',
+            icon: Monitor,
+            color: 'from-green-500 to-emerald-500',
+            details: [
+              'Image Recognition',
+              'Object Detection',
+              'Image Segmentation',
+              'Video Analysis'
+            ]
+          },
+          {
+            id: 'AI Engineering',
+            title: 'AI Engineering',
+            description: 'Deployment and production of AI systems',
+            icon: Cpu,
+            color: 'from-orange-500 to-red-500',
+            details: [
+              'Model Deployment',
+              'MLOps',
+              'AI Infrastructure',
+              'Performance Optimization'
             ]
           }
         ];
       
-      case 'mobile_development':
+      case 'Full-Stack Development':
         return [
           {
-            id: 'native_ios',
-            title: 'Native iOS Development',
-            description: 'Build native iOS apps using Swift/SwiftUI',
+            id: 'Frontend (React, Next.js)',
+            title: 'Frontend (React, Next.js)',
+            description: 'User interfaces with modern JavaScript frameworks',
             icon: Monitor,
             color: 'from-blue-500 to-cyan-500',
             details: [
-              'Swift Programming',
-              'SwiftUI & UIKit',
-              'iOS SDK',
-              'App Store Guidelines'
+              'React.js',
+              'Next.js',
+              'State Management',
+              'Component Architecture'
             ]
           },
           {
-            id: 'native_android',
-            title: 'Native Android Development',
-            description: 'Build native Android apps using Kotlin/Java',
+            id: 'Backend (Node.js, Python)',
+            title: 'Backend (Node.js, Python)',
+            description: 'Server-side development and APIs',
             icon: Server,
             color: 'from-green-500 to-emerald-500',
             details: [
-              'Kotlin/Java Programming',
-              'Android SDK',
-              'Material Design',
-              'Google Play Store'
+              'Node.js/Express',
+              'Python/Django',
+              'RESTful APIs',
+              'Database Integration'
             ]
           },
           {
-            id: 'cross_platform',
-            title: 'Cross-Platform Development',
-            description: 'Build apps for both iOS and Android with one codebase',
-            icon: Layers,
-            color: 'from-purple-500 to-pink-500',
+            id: 'Mobile Development',
+            title: 'Mobile Development',
+            description: 'Cross-platform mobile applications',
+            icon: Smartphone,
+            color: 'from-teal-500 to-green-500',
             details: [
-              'React Native/Flutter',
-              'Cross-platform APIs',
-              'Platform-specific Design',
-              'Hybrid App Development'
+              'React Native',
+              'Flutter',
+              'iOS Development',
+              'Android Development'
             ]
           }
         ];
 
-      case 'data_science':
+      case 'Cloud Computing & DevOps':
         return [
           {
-            id: 'data_analysis',
+            id: 'AWS/Azure/GCP',
+            title: 'AWS/Azure/GCP',
+            description: 'Cloud platforms and services',
+            icon: Cloud,
+            color: 'from-orange-500 to-red-500',
+            details: [
+              'Cloud Architecture',
+              'Compute Services',
+              'Storage Solutions',
+              'Networking'
+            ]
+          },
+          {
+            id: 'Docker/Kubernetes',
+            title: 'Docker/Kubernetes',
+            description: 'Containerization and orchestration',
+            icon: Layers,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'Container Management',
+              'Orchestration',
+              'Microservices',
+              'Service Mesh'
+            ]
+          },
+          {
+            id: 'CI/CD',
+            title: 'CI/CD',
+            description: 'Continuous Integration and Deployment',
+            icon: Cpu,
+            color: 'from-green-500 to-emerald-500',
+            details: [
+              'Automated Testing',
+              'Pipeline Setup',
+              'Deployment Strategies',
+              'Version Control'
+            ]
+          },
+          {
+            id: 'Infrastructure as Code',
+            title: 'Infrastructure as Code',
+            description: 'Managing infrastructure through code',
+            icon: Server,
+            color: 'from-purple-500 to-pink-500',
+            details: [
+              'Terraform',
+              'CloudFormation',
+              'Ansible',
+              'Automation Scripts'
+            ]
+          }
+        ];
+
+      case 'Data Science & Analytics':
+        return [
+          {
+            id: 'Data Analysis',
             title: 'Data Analysis',
-            description: 'Focus on analyzing and visualizing data insights',
+            description: 'Analyzing and interpreting complex data',
+            icon: Database,
+            color: 'from-green-500 to-emerald-500',
+            details: [
+              'Data Cleaning',
+              'Statistical Analysis',
+              'Data Visualization',
+              'Reporting'
+            ]
+          },
+          {
+            id: 'Business Intelligence',
+            title: 'Business Intelligence',
+            description: 'Transforming data into business insights',
             icon: Monitor,
             color: 'from-blue-500 to-cyan-500',
             details: [
-              'Python/R Programming',
-              'Data Visualization',
-              'Statistical Analysis',
-              'Business Intelligence'
-            ]
-          },
-          {
-            id: 'machine_learning',
-            title: 'Machine Learning',
-            description: 'Build predictive models and AI systems',
-            icon: Server,
-            color: 'from-green-500 to-emerald-500',
-            details: [
-              'ML Algorithms',
-              'Model Training',
-              'Deep Learning',
-              'Neural Networks'
-            ]
-          },
-          {
-            id: 'data_engineering',
-            title: 'Data Engineering',
-            description: 'Build data pipelines and infrastructure',
-            icon: Layers,
-            color: 'from-purple-500 to-pink-500',
-            details: [
-              'Data Pipelines',
-              'Big Data Technologies',
+              'Dashboard Creation',
+              'KPI Tracking',
               'Data Warehousing',
               'ETL Processes'
+            ]
+          },
+          {
+            id: 'Big Data Engineering',
+            title: 'Big Data Engineering',
+            description: 'Processing and managing large datasets',
+            icon: Server,
+            color: 'from-purple-500 to-pink-500',
+            details: [
+              'Hadoop/Spark',
+              'Data Pipelines',
+              'Stream Processing',
+              'Distributed Systems'
+            ]
+          }
+        ];
+
+      case 'Cybersecurity':
+        return [
+          {
+            id: 'Ethical Hacking',
+            title: 'Ethical Hacking',
+            description: 'Identifying vulnerabilities and security weaknesses',
+            icon: Lock,
+            color: 'from-red-500 to-orange-500',
+            details: [
+              'Penetration Testing',
+              'Vulnerability Assessment',
+              'Network Security',
+              'Exploitation Techniques'
+            ]
+          },
+          {
+            id: 'Security Engineering',
+            title: 'Security Engineering',
+            description: 'Designing secure systems and applications',
+            icon: Server,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'Secure Architecture',
+              'Encryption',
+              'Access Control',
+              'Security Protocols'
+            ]
+          },
+          {
+            id: 'Cloud Security',
+            title: 'Cloud Security',
+            description: 'Protecting cloud-based systems and data',
+            icon: Cloud,
+            color: 'from-purple-500 to-pink-500',
+            details: [
+              'Identity Management',
+              'Compliance',
+              'Data Protection',
+              'Threat Monitoring'
+            ]
+          }
+        ];
+
+      case 'Blockchain & Web3 Development':
+        return [
+          {
+            id: 'Smart Contracts',
+            title: 'Smart Contracts',
+            description: 'Self-executing contracts with blockchain',
+            icon: Blocks,
+            color: 'from-indigo-500 to-purple-500',
+            details: [
+              'Solidity',
+              'Contract Development',
+              'Testing',
+              'Deployment'
+            ]
+          },
+          {
+            id: 'DeFi',
+            title: 'DeFi',
+            description: 'Decentralized Finance applications',
+            icon: Layers,
+            color: 'from-green-500 to-emerald-500',
+            details: [
+              'Token Creation',
+              'Lending Protocols',
+              'DEX Development',
+              'Yield Farming'
+            ]
+          },
+          {
+            id: 'NFT Development',
+            title: 'NFT Development',
+            description: 'Non-Fungible Token creation and management',
+            icon: Palette,
+            color: 'from-pink-500 to-rose-500',
+            details: [
+              'NFT Standards',
+              'Marketplace Creation',
+              'Digital Art',
+              'Metadata Management'
+            ]
+          }
+        ];
+
+      case 'Mobile App Development':
+        return [
+          {
+            id: 'Native (iOS/Android)',
+            title: 'Native (iOS/Android)',
+            description: 'Platform-specific mobile development',
+            icon: Smartphone,
+            color: 'from-teal-500 to-green-500',
+            details: [
+              'Swift/Kotlin',
+              'Native APIs',
+              'App Store Guidelines',
+              'Performance Optimization'
+            ]
+          },
+          {
+            id: 'Cross-platform (Flutter, React Native)',
+            title: 'Cross-platform (Flutter, React Native)',
+            description: 'Single codebase for multiple platforms',
+            icon: Layers,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'Flutter/Dart',
+              'React Native',
+              'Shared Logic',
+              'Platform Integration'
+            ]
+          }
+        ];
+
+      case 'Game Development':
+        return [
+          {
+            id: 'Unity',
+            title: 'Unity',
+            description: 'Cross-platform game engine development',
+            icon: Gamepad2,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'C# Programming',
+              '3D Graphics',
+              'Physics Engine',
+              'Multiplatform Deployment'
+            ]
+          },
+          {
+            id: 'Unreal Engine',
+            title: 'Unreal Engine',
+            description: 'High-fidelity game engine development',
+            icon: Cpu,
+            color: 'from-purple-500 to-pink-500',
+            details: [
+              'Blueprints',
+              'C++ Programming',
+              'Real-time Rendering',
+              'VR/AR Development'
+            ]
+          },
+          {
+            id: 'Game Design',
+            title: 'Game Design',
+            description: 'Game mechanics and user experience design',
+            icon: Palette,
+            color: 'from-orange-500 to-red-500',
+            details: [
+              'Game Mechanics',
+              'Level Design',
+              'User Experience',
+              'Narrative Design'
+            ]
+          }
+        ];
+
+      case 'UI/UX Design & Frontend Engineering':
+        return [
+          {
+            id: 'Design Systems',
+            title: 'Design Systems',
+            description: 'Creating consistent design languages',
+            icon: Palette,
+            color: 'from-pink-500 to-rose-500',
+            details: [
+              'Component Libraries',
+              'Style Guides',
+              'Design Tokens',
+              'Consistency Standards'
+            ]
+          },
+          {
+            id: 'User Research',
+            title: 'User Research',
+            description: 'Understanding user needs and behaviors',
+            icon: Monitor,
+            color: 'from-blue-500 to-cyan-500',
+            details: [
+              'User Interviews',
+              'Usability Testing',
+              'Analytics',
+              'Persona Development'
+            ]
+          },
+          {
+            id: 'Interaction Design',
+            title: 'Interaction Design',
+            description: 'Designing engaging user interactions',
+            icon: Layers,
+            color: 'from-green-500 to-emerald-500',
+            details: [
+              'Prototyping',
+              'Microinteractions',
+              'Animation',
+              'Accessibility'
             ]
           }
         ];
@@ -139,28 +410,12 @@ const SpecializationStep = ({ data, onUpdate, onNext, onBack, currentQuestion, c
       default:
         return [
           {
-            id: 'frontend',
-            title: 'Frontend Focus',
-            description: 'User-facing applications and interfaces',
+            id: 'General Focus',
+            title: 'General Focus',
+            description: 'Broad skill development across your selected field',
             icon: Monitor,
             color: 'from-blue-500 to-cyan-500',
-            details: ['UI/UX Development', 'Client-side Programming']
-          },
-          {
-            id: 'backend',
-            title: 'Backend Focus',
-            description: 'Server-side development and infrastructure',
-            icon: Server,
-            color: 'from-green-500 to-emerald-500',
-            details: ['Server Programming', 'Database Management']
-          },
-          {
-            id: 'fullstack',
-            title: 'Full Stack Focus',
-            description: 'End-to-end development skills',
-            icon: Layers,
-            color: 'from-purple-500 to-pink-500',
-            details: ['Frontend & Backend', 'Complete Solutions']
+            details: ['Foundational Skills', 'Best Practices']
           }
         ];
     }
@@ -172,7 +427,7 @@ const SpecializationStep = ({ data, onUpdate, onNext, onBack, currentQuestion, c
   const handleUpdate = useCallback(() => {
     if (selectedSpecialization) {
       onUpdate({
-        specialization: selectedSpecialization
+        specialization_field: selectedSpecialization
       });
     }
   }, [selectedSpecialization, onUpdate]);
@@ -189,7 +444,7 @@ const SpecializationStep = ({ data, onUpdate, onNext, onBack, currentQuestion, c
   };
 
   const getFieldDisplayName = () => {
-    return data.fieldOfInterest?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'your selected field';
+    return data.major_subject || 'your selected field';
   };
 
   return (
