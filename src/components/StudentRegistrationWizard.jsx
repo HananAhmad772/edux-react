@@ -145,8 +145,8 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
     setQuizGenerationError(null);
     
     try {
-      // Get token from studentData
-      const token = studentData?.token || localStorage.getItem('authToken');
+      // Get token from studentData (consistent with login page)
+      const token = studentData?.token || localStorage.getItem('token');
       
       // Set authorization header
       if (token) {
@@ -243,24 +243,31 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             
             console.log("Extracted questions from first quiz object:", fetchedQuestions);
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            }
           } else if (quizResponse.data && quizResponse.data.questions) {
             // Handle case where response is a single quiz object
             fetchedQuestions = quizResponse.data.questions || [];
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            } else {
+              // If it's not an array, make it an empty array
+              fetchedQuestions = [];
+            }
           } else if (quizResponse.data && Array.isArray(quizResponse.data.data) && quizResponse.data.data.length > 0) {
             // Handle standard API response structure {status, code, message, data}
             const responseData = quizResponse.data.data;
@@ -269,25 +276,32 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             
             console.log("Extracted questions from first quiz object (standard API):", fetchedQuestions);
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            }
           } else if (quizResponse.data && quizResponse.data.data && quizResponse.data.data.questions) {
             // Handle standard API response structure with single quiz object
             const responseData = quizResponse.data.data;
             fetchedQuestions = responseData.questions || [];
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            } else {
+              // If it's not an array, make it an empty array
+              fetchedQuestions = [];
+            }
           }
           
           // If questions is a string, try to parse it as JSON
@@ -333,8 +347,8 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
     setQuizGenerationError(null);
     
     try {
-      // Get token from studentData
-      const token = studentData?.token || localStorage.getItem('authToken');
+      // Get token from studentData (consistent with login page)
+      const token = studentData?.token || localStorage.getItem('token');
       
       // Set authorization header
       if (token) {
@@ -422,24 +436,31 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             
             console.log("Extracted questions from first quiz object (manual):", fetchedQuestions);
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            }
           } else if (quizResponse.data && quizResponse.data.questions) {
             // Handle case where response is a single quiz object
             fetchedQuestions = quizResponse.data.questions || [];
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            } else {
+              // If it's not an array, make it an empty array
+              fetchedQuestions = [];
+            }
           } else if (quizResponse.data && Array.isArray(quizResponse.data.data) && quizResponse.data.data.length > 0) {
             // Handle standard API response structure {status, code, message, data}
             const responseData = quizResponse.data.data;
@@ -448,25 +469,32 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
             
             console.log("Extracted questions from first quiz object (manual, standard API):", fetchedQuestions);
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            }
           } else if (quizResponse.data && quizResponse.data.data && quizResponse.data.data.questions) {
             // Handle standard API response structure with single quiz object
             const responseData = quizResponse.data.data;
             fetchedQuestions = responseData.questions || [];
             
-            // Add IDs to questions if they don't have them
-            fetchedQuestions = fetchedQuestions.map((q, index) => ({
-              ...q,
-              id: q.id || index + 1,
-              type: q.type || (q.options ? 'mcq' : 'short'),
-              correctAnswer: q.correctAnswer || q.correct_answer
-            }));
+            // Add IDs to questions if they don't have them and it's an array
+            if (Array.isArray(fetchedQuestions)) {
+              fetchedQuestions = fetchedQuestions.map((q, index) => ({
+                ...q,
+                id: q.id || index + 1,
+                type: q.type || (q.options ? 'mcq' : 'short'),
+                correctAnswer: q.correctAnswer || q.correct_answer
+              }));
+            } else {
+              // If it's not an array, make it an empty array
+              fetchedQuestions = [];
+            }
           }
           
           // If questions is a string, try to parse it as JSON
@@ -546,8 +574,8 @@ const StudentRegistrationWizard = ({ isOpen, onClose, onComplete, studentData })
         score: String(wizardData.quizScore || 0)
       };
       
-      // Get token from localStorage or studentData
-      const token = studentData?.token || localStorage.getItem('authToken');
+      // Get token from localStorage or studentData (consistent with login page)
+      const token = studentData?.token || localStorage.getItem('token');
       
       // Set authorization header
       if (token) {

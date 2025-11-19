@@ -93,7 +93,7 @@ const QuizStep = ({ data, onUpdate, onComplete, onBack, studentData, isSubmittin
       setError(null);
       
       // Get token from studentData
-      const token = studentData?.token || localStorage.getItem('authToken');
+      const token = studentData?.token || localStorage.getItem('token');
       
       // Set authorization header
       if (token) {

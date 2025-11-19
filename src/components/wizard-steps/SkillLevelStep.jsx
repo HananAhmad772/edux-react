@@ -148,7 +148,7 @@ const SkillLevelStep = ({ data, onUpdate, onNext, onBack, currentQuestion, canGo
         };
         
         // Get token from localStorage
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
         
         // Set authorization header
         if (token) {

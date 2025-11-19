@@ -120,7 +120,7 @@ const classYearOptions = [
 
   // Store token in localStorage if available
     if (token) {
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token);
       console.log("Token stored successfully:", token);
     } else {
       console.warn("No token found in response.");
