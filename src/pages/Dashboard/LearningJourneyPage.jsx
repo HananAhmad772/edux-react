@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronRight, Lock, Check, Flame, RefreshCw } from 'lucide-react';
+import { ChevronRight, Lock, Check, Flame, RefreshCw, Info } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import api from '../../api/axios';
 
@@ -10,6 +10,8 @@ const LearningJourneyPage = () => {
   const [latestRoadmap, setLatestRoadmap] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -75,12 +77,30 @@ const LearningJourneyPage = () => {
   };
 
   const openDayDetails = (day) => {
-    setSelectedDay(day);
+    // Normalize the roadmap data when opening day details
+    const normalizedDay = {
+      ...day,
+      ...normalizeRoadmap(day)
+    };
+    setSelectedDay(normalizedDay);
   };
 
   const closeDayDetails = () => {
     setSelectedDay(null);
   };
+
+  // Function to normalize roadmap data
+  function normalizeRoadmap(aiStep) {
+    return {
+      topics: aiStep["Topics to study"] || [],
+      tools: aiStep["Tools to use"] || [],
+      skills: aiStep["Skills learned"] || [],
+      tasks: aiStep["Mini practice tasks"] || [],
+      duration: aiStep["Estimated Duration"] || "",
+      challenge: aiStep["Related Challenge/Milestones"] || "",
+      resources: aiStep.resources || []
+    };
+  }
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -108,26 +128,10 @@ const LearningJourneyPage = () => {
   const transformRoadmapToLearningJourney = (roadmap) => {
     // Handle the case where roadmap is a string (as shown in the API response)
     if (typeof roadmap === 'string') {
-      const parsed = parseRoadmapString(roadmap);
-      // If parsing didn't work well, try generic parsing
-      if (parsed.length === 0 || (parsed.length === 1 && parsed[0].objective === 'Complete this phase')) {
-        const genericParsed = parseGenericRoadmap(roadmap);
-        if (genericParsed.length > 0) {
-          return genericParsed;
-        }
-      }
-      // If parsing didn't work, create a fallback entry
+      const parsed = parseRoadmapWeeks(roadmap);
+      // If parsing didn't work, fall back to the previous method
       if (parsed.length === 0) {
-        return [{
-          id: 1,
-          day: 'Overview',
-          title: 'AI & Machine Learning Roadmap',
-          status: 'in-progress',
-          objective: roadmap.substring(0, 200) + '...',
-          resources: [],
-          duration: 'Varies',
-          challenge: 'Follow the roadmap to learn AI & ML'
-        }];
+        return parseRoadmapString(roadmap);
       }
       return parsed;
     }
@@ -144,8 +148,12 @@ const LearningJourneyPage = () => {
       status: module.status || 'locked',
       objective: module.description || 'Complete this module',
       resources: module.resources || [],
-      duration: module.duration || 'N/A',
-      challenge: module.challenge || 'Practice what you learned'
+      "Topics to study": module.topics || [],
+      "Tools to use": module.tools || [],
+      "Skills learned": module.skills || [],
+      "Mini practice tasks": module.tasks || [],
+      "Estimated Duration": module.duration || 'N/A',
+      "Related Challenge/Milestones": module.challenge || 'Practice what you learned'
     }));
   };
 
@@ -153,31 +161,34 @@ const LearningJourneyPage = () => {
   const parseRoadmapString = (roadmapString) => {
     if (!roadmapString) return [];
     
-    console.log("Parsing roadmap string:", roadmapString);
-    
     // Split the roadmap into sections by "**" which indicates major sections
     const sections = roadmapString.split('**');
     
-    // Find the Phase-by-Phase Plan section
-    const phasePlanIndex = sections.findIndex(section => section.includes('Phase-by-Phase Plan'));
+    // Find the Phase-by-Phase Plan section or Learning Roadmap section
+    const phasePlanIndex = sections.findIndex(section => 
+      section.includes('Phase-by-Phase Plan') || 
+      section.includes('Learning Roadmap') ||
+      section.includes('Week 1') ||
+      section.includes('Weeks')
+    );
     
     if (phasePlanIndex === -1 || phasePlanIndex + 1 >= sections.length) {
       // If we can't find the phase plan, try to parse as generic markdown
       return parseGenericRoadmap(roadmapString);
     }
     
-    // Get the content after "Phase-by-Phase Plan"
+    // Get the content after the roadmap section header
     const phaseContent = sections[phasePlanIndex + 1];
     
-    // Split into phases by "**Phase"
-    const phaseSections = phaseContent.split(/\*\*Phase \d+:/);
+    // Split into weeks/phases by "**Week" or similar patterns
+    const phaseSections = phaseContent.split(/\*\*Week |\*\*Phase \d+:/);
     
     // Extract phases (skip the first section which is the header)
     const phases = phaseSections.slice(1).map((phase, index) => {
       const lines = phase.trim().split('\n').filter(line => line.trim() !== '');
       
       // Extract title (first line after phase header)
-      let title = `Phase ${index + 1}`;
+      let title = `Week ${index + 1}`;
       if (lines.length > 0) {
         // Look for the phase title in the first few lines
         for (let i = 0; i < Math.min(3, lines.length); i++) {
@@ -193,22 +204,25 @@ const LearningJourneyPage = () => {
       let inTopicsSection = false;
       
       for (const line of lines) {
-        if (line.includes('Topics:')) {
+        if (line.includes('Concepts:') || line.includes('Skills gained:') || line.includes('Expected outcome:')) {
           inTopicsSection = true;
           continue;
         }
         
         // Stop when we hit the next section
-        if (inTopicsSection && (line.startsWith('**') || line.startsWith('1.') || line.startsWith('2.') || line.startsWith('3.'))) {
-          if (!line.includes('Topics:')) {
-            inTopicsSection = false;
+        if (inTopicsSection && (line.startsWith('**') || line.startsWith('- ') || line.match(/^\d+\./))) {
+          if (!line.includes('Concepts:') && !line.includes('Skills gained:') && !line.includes('Expected outcome:')) {
+            // Continue collecting if it's a list item
+            if (!line.startsWith('- ') && !line.match(/^\d+\./)) {
+              inTopicsSection = false;
+            }
           }
         }
         
         // Collect topics while in topics section
-        if (inTopicsSection && (line.trim().startsWith('*') || line.trim().startsWith('\t*'))) {
+        if (inTopicsSection && (line.trim().startsWith('- ') || line.trim().startsWith('* '))) {
           const cleanLine = line
-            .replace(/\*/g, '')
+            .replace(/[-*]/g, '')
             .replace(/\t/g, '')
             .trim();
           if (cleanLine) {
@@ -219,7 +233,7 @@ const LearningJourneyPage = () => {
       
       return {
         id: index + 1,
-        day: `Weeks ${getWeeksForPhase(index + 1)}`,
+        day: getTitleForWeek(index + 1),
         title: title,
         status: index === 0 ? 'in-progress' : 'locked',
         objective: objectives.length > 0 ? objectives.slice(0, 3).join(', ') : 'Complete this phase',
@@ -229,7 +243,6 @@ const LearningJourneyPage = () => {
       };
     });
     
-    console.log("Parsed phases:", phases);
     return phases;
   };
   
@@ -299,23 +312,330 @@ const LearningJourneyPage = () => {
   };
   
   // Helper functions for phase information
-  const getWeeksForPhase = (phaseNumber) => {
-    switch(phaseNumber) {
-      case 1: return 'Weeks 1-8';
-      case 2: return 'Weeks 9-16';
-      case 3: return 'Weeks 17-24';
-      default: return `Phase ${phaseNumber}`;
-    }
+  const getTitleForWeek = (weekNumber) => {
+    if (weekNumber <= 2) return 'Weeks 1-2';
+    if (weekNumber <= 4) return 'Weeks 3-4';
+    if (weekNumber <= 6) return 'Weeks 5-6';
+    if (weekNumber <= 8) return 'Weeks 7-8';
+    if (weekNumber <= 10) return 'Weeks 9-10';
+    if (weekNumber <= 12) return 'Weeks 11-12';
+    return `Week ${weekNumber}`;
   };
   
   const getDurationForPhase = (phaseNumber) => {
     return '5-10 hours/week';
   };
   
+  // Extract explanation from roadmap string
+  const extractExplanation = (roadmapString) => {
+    if (!roadmapString) return "";
+    
+    // Find the sections that contain explanation content
+    const explanationStartIndex = roadmapString.indexOf('**Roadmap Explanation**');
+    const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
+    
+    if (explanationStartIndex === -1) return "";
+    
+    // Determine the end of explanation content (start of roadmap)
+    const endIndex = roadmapStartIndex !== -1 ? roadmapStartIndex : roadmapString.length;
+    
+    // Extract the explanation section
+    const explanation = roadmapString.substring(explanationStartIndex, endIndex).trim();
+    
+    return explanation;
+  };
+  
+  // Extract roadmap plan from roadmap string
+  const extractRoadmapPlan = (roadmapString) => {
+    if (!roadmapString) return "";
+    
+    console.log("=== EXTRACTING ROADMAP PLAN ===");
+    console.log("Input roadmap string:", roadmapString.substring(0, 200) + "..."); // First 200 chars
+    
+    // Find the roadmap plan section
+    const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
+    
+    if (roadmapStartIndex === -1) {
+      console.log("ERROR: Roadmap start index not found");
+      return roadmapString; // Return entire string if no roadmap section found
+    }
+    
+    // Extract the roadmap section
+    const roadmapPlan = roadmapString.substring(roadmapStartIndex).trim();
+    
+    console.log("SUCCESS: Extracted roadmap plan:", roadmapPlan.substring(0, 500) + "...");
+    return roadmapPlan;
+  };
+  
+  // Extract roadmap title (e.g., "Learning Roadmap (16 weeks)")
+  const extractRoadmapTitle = (roadmapString) => {
+    if (!roadmapString) return "Learning Roadmap";
+    
+    const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
+    if (roadmapStartIndex === -1) return "Learning Roadmap";
+    
+    // Find the end of the title line
+    const titleEndIndex = roadmapString.indexOf('\n', roadmapStartIndex);
+    if (titleEndIndex === -1) return "Learning Roadmap";
+    
+    // Extract and clean the title
+    const title = roadmapString.substring(roadmapStartIndex + 2, titleEndIndex).trim();
+    return title || "Learning Roadmap";
+  };
+  
+  // Parse roadmap weeks data for detailed view
+  const parseRoadmapWeeks = (roadmapString) => {
+    if (!roadmapString) return [];
+    
+    // Find the roadmap plan section
+    const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
+    if (roadmapStartIndex === -1) return [];
+    
+    // Get the roadmap content
+    const roadmapContent = roadmapString.substring(roadmapStartIndex);
+    
+    // Split by week headings - try different patterns
+    let weekSections = [];
+    
+    // Try pattern with en-dash
+    if (roadmapContent.includes('–')) {
+      weekSections = roadmapContent.split(/\*\*Week \d+–\d+:/);
+    } 
+    // Try pattern with hyphen
+    else if (roadmapContent.includes('-')) {
+      weekSections = roadmapContent.split(/\*\*Week \d+-\d+:/);
+    }
+    // Try pattern with space
+    else {
+      weekSections = roadmapContent.split(/\*\*Week \d+ \d+:/);
+    }
+    
+    // Extract weeks (skip the first section which is the header)
+    const weeks = weekSections.slice(1).map((week, index) => {
+      const lines = week.trim().split('\n').filter(line => line.trim() !== '');
+      
+      // Extract title (first line after week header)
+      let title = `Weeks ${index * 2 + 1}-${index * 2 + 2}`;
+      if (lines.length > 0) {
+        title = lines[0].replace(/\*\*/g, '').trim();
+      }
+      
+      // Parse week details
+      let topics = [];
+      let tools = [];
+      let skills = [];
+      let tasks = [];
+      let duration = "";
+      let challenge = "";
+      let resources = [];
+      
+      let currentSection = '';
+      
+      for (const line of lines) {
+        if (line.includes('Topics to study:')) {
+          currentSection = 'Topics to study';
+          // Handle the case where topics are on the same line
+          const topicsContent = line.replace('Topics to study:', '').trim();
+          if (topicsContent) {
+            // Split by comma and add each topic
+            topicsContent.split(',').forEach(topic => {
+              const cleanTopic = topic.replace('*', '').trim();
+              if (cleanTopic) topics.push(cleanTopic);
+            });
+          }
+          continue;
+        } else if (line.includes('Tools to use:')) {
+          currentSection = 'Tools to use';
+          // Handle the case where tools are on the same line
+          const toolsContent = line.replace('Tools to use:', '').trim();
+          if (toolsContent) {
+            // Split by comma and add each tool
+            toolsContent.split(',').forEach(tool => {
+              const cleanTool = tool.replace('*', '').trim();
+              if (cleanTool) tools.push(cleanTool);
+            });
+          }
+          continue;
+        } else if (line.includes('Skills learned:')) {
+          currentSection = 'Skills learned';
+          // Handle the case where skills are on the same line
+          const skillsContent = line.replace('Skills learned:', '').trim();
+          if (skillsContent) {
+            // Split by comma and add each skill
+            skillsContent.split(',').forEach(skill => {
+              const cleanSkill = skill.replace('*', '').trim();
+              if (cleanSkill) skills.push(cleanSkill);
+            });
+          }
+          continue;
+        } else if (line.includes('Mini practice tasks or micro-projects:')) {
+          currentSection = 'Mini practice tasks';
+          // Handle the case where tasks are on the same line
+          const tasksContent = line.replace('Mini practice tasks or micro-projects:', '').trim();
+          if (tasksContent) {
+            // Split by comma and add each task
+            tasksContent.split(',').forEach(task => {
+              const cleanTask = task.replace('*', '').trim();
+              if (cleanTask) tasks.push(cleanTask);
+            });
+          }
+          continue;
+        } else if (line.includes('Estimated Duration:')) {
+          currentSection = 'Estimated Duration';
+          duration = line.replace('Estimated Duration:', '').trim();
+          continue;
+        } else if (line.includes('Related Challenge/Milestones:')) {
+          currentSection = 'Related Challenge/Milestones';
+          challenge = line.replace('Related Challenge/Milestones:', '').trim();
+          continue;
+        } else if (line.includes('Recommended Resources:') || line.includes('Resources:')) {
+          currentSection = 'Recommended Resources';
+          continue;
+        }
+        
+        // Collect items for current section (for cases where items are on separate lines with asterisks)
+        if (currentSection === 'Topics to study' && line.trim().startsWith('*')) {
+          topics.push(line.replace('*', '').trim());
+        } else if (currentSection === 'Tools to use' && line.trim().startsWith('*')) {
+          tools.push(line.replace('*', '').trim());
+        } else if (currentSection === 'Skills learned' && line.trim().startsWith('*')) {
+          skills.push(line.replace('*', '').trim());
+        } else if (currentSection === 'Mini practice tasks' && line.trim().startsWith('*')) {
+          tasks.push(line.replace('*', '').trim());
+        } else if (currentSection === 'Recommended Resources' && line.trim().startsWith('*')) {
+          resources.push(line.replace('*', '').trim());
+        } else if (currentSection === 'Estimated Duration' && !duration) {
+          duration = line.trim();
+        } else if (currentSection === 'Related Challenge/Milestones' && !challenge) {
+          challenge = line.trim();
+        }
+      }
+      
+      return {
+        id: index + 1,
+        title: title,
+        day: `Weeks ${index * 2 + 1}-${index * 2 + 2}`,
+        status: index === 0 ? 'in-progress' : 'locked',
+        objective: skills.length > 0 ? skills.slice(0, 2).join(', ') : 'Complete this week',
+        resources: resources,
+        "Topics to study": topics,
+        "Tools to use": tools,
+        "Skills learned": skills,
+        "Mini practice tasks": tasks,
+        "Estimated Duration": duration,
+        "Related Challenge/Milestones": challenge
+      };
+    });
+    
+    return weeks;
+  };
+  
+  // Format explanation text for display
+  const formatExplanation = (explanation) => {
+    if (!explanation) return "";
+    
+    // Convert markdown to HTML-like structure for display
+    let formatted = explanation
+      .replace(/\*\*Roadmap Explanation\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Roadmap Explanation</h3>')
+      .replace(/\*\*Key Highlights\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Key Highlights</h3>')
+      .replace(/\*\*Current Skill Assessment\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Current Skill Assessment</h3>')
+      .replace(/\*\*Strengths:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Strengths:</h4>')
+      .replace(/\*\*Weaknesses:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Weaknesses:</h4>')
+      .replace(/\*\*Gaps detected from quiz performance:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Gaps detected from quiz performance:</h4>')
+      .replace(/\*\*Learning Objectives:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Learning Objectives</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
+      .replace(/\n\s*•\s*/g, '<br/>• ')
+      .replace(/^• /gm, '• ')
+      .replace(/\n/g, '<br/>');
+    
+    // Add some spacing between sections
+    formatted = formatted.replace(/<br\/>(<h[34])/g, '<br/><br/>$1');
+    
+    return formatted;
+  };
+  
+  // Extract recommended resources section
+  const extractRecommendedResources = (roadmapString) => {
+    if (!roadmapString) return "";
+    
+    const resourcesStartIndex = roadmapString.indexOf('**Recommended Resources:**');
+    const timelineStartIndex = roadmapString.indexOf('**Timeline & Milestones:**');
+    
+    if (resourcesStartIndex === -1) return "";
+    
+    // Determine the end of resources content
+    const endIndex = timelineStartIndex !== -1 ? timelineStartIndex : roadmapString.length;
+    
+    // Extract the resources section
+    const resources = roadmapString.substring(resourcesStartIndex, endIndex).trim();
+    
+    return resources;
+  };
+  
+  // Extract timeline and milestones section
+  const extractTimelineMilestones = (roadmapString) => {
+    if (!roadmapString) return "";
+    
+    const timelineStartIndex = roadmapString.indexOf('**Timeline & Milestones:**');
+    
+    if (timelineStartIndex === -1) return "";
+    
+    // Extract the timeline section (to the end of the string)
+    const timeline = roadmapString.substring(timelineStartIndex).trim();
+    
+    return timeline;
+  };
+  
+  // Format recommended resources for display
+  const formatRecommendedResources = (resources) => {
+    if (!resources) return "";
+    
+    // Convert markdown to HTML-like structure for display
+    let formatted = resources
+      .replace(/\*\*Recommended Resources:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Recommended Resources</h3>')
+      .replace(/\*\*Courses:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Courses:</h4>')
+      .replace(/\*\*Tutorials:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Tutorials:</h4>')
+      .replace(/\*\*Documentation:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Documentation:</h4>')
+      .replace(/\*\*GitHub repos:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">GitHub Repositories:</h4>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
+      .replace(/\n\s*•\s*/g, '<br/>• ')
+      .replace(/^• /gm, '• ')
+      .replace(/\n/g, '<br/>');
+    
+    return formatted;
+  };
+  
+  // Format timeline and milestones for display
+  const formatTimelineMilestones = (timeline) => {
+    if (!timeline) return "";
+    
+    // Convert markdown to HTML-like structure for display
+    let formatted = timeline
+      .replace(/\*\*Timeline & Milestones:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Timeline & Milestones</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
+      .replace(/\n\s*•\s*/g, '<br/>• ')
+      .replace(/^• /gm, '• ')
+      .replace(/\n/g, '<br/>');
+    
+    return formatted;
+  };
+  
   // Use latest roadmap data only (no mock data fallback)
   const learningJourney = latestRoadmap 
-    ? transformRoadmapToLearningJourney(latestRoadmap)
+    ? transformRoadmapToLearningJourney(
+        extractRoadmapPlan(latestRoadmap) || latestRoadmap
+      )
     : [];
+  
+  console.log("Learning journey:", learningJourney);
+
+  const explanation = latestRoadmap 
+    ? extractExplanation(latestRoadmap)
+    : "";
+  
+  const roadmapTitle = latestRoadmap 
+    ? extractRoadmapTitle(latestRoadmap)
+    : "Learning Roadmap";
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -351,27 +671,87 @@ const LearningJourneyPage = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Personalized Roadmap</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{roadmapTitle}</h2>
                 <p className="text-gray-600">AI-generated learning path based on your goals and progress</p>
               </div>
-              <button
-                onClick={generateNewRoadmap}
-                disabled={generating}
-                className="mt-4 md:mt-0 flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-50"
-              >
-                {generating ? (
+              <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+                {latestRoadmap && (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Generate New Roadmap
+                    <button
+                      onClick={() => setShowExplanation(!showExplanation)}
+                      className="flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all"
+                    >
+                      <Info className="w-4 h-4 mr-2" />
+                      {showExplanation ? 'Hide Explanation' : 'Show Explanation'}
+                    </button>
+                    {/* <button
+                      onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
+                      className="flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all"
+                    >
+                      <Info className="w-4 h-4 mr-2" />
+                      {showAdditionalInfo ? 'Hide Roadmap Details' : 'Show Roadmap Details'}
+                    </button> */}
                   </>
                 )}
-              </button>
+                <button
+                  onClick={generateNewRoadmap}
+                  disabled={generating}
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-50"
+                >
+                  {generating ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Generate New Roadmap
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
+
+            {showExplanation && explanation && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-bold text-blue-800 mb-2">Why this roadmap?</h3>
+                <div 
+                  className="text-gray-700 text-sm"
+                  dangerouslySetInnerHTML={{ __html: formatExplanation(explanation) }}
+                />
+              </div>
+            )}
+
+            {showAdditionalInfo && latestRoadmap && (
+              <>
+                {/* Recommended Resources Section */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Recommended Resources</h3>
+                  <div 
+                    className="text-gray-700 text-sm"
+                    dangerouslySetInnerHTML={{ 
+                      __html: formatRecommendedResources(
+                        extractRecommendedResources(latestRoadmap)
+                      ) 
+                    }}
+                  />
+                </div>
+                
+                {/* Timeline & Milestones Section */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Timeline & Milestones</h3>
+                  <div 
+                    className="text-gray-700 text-sm"
+                    dangerouslySetInnerHTML={{ 
+                      __html: formatTimelineMilestones(
+                        extractTimelineMilestones(latestRoadmap)
+                      ) 
+                    }}
+                  />
+                </div>
+              </>
+            )}
 
             {loading ? (
               <div className="flex justify-center items-center h-64">
@@ -415,8 +795,6 @@ const LearningJourneyPage = () => {
                           
                           <div className="mt-3 flex items-center text-sm text-gray-500">
                             <span>{day.duration}</span>
-                            <span className="mx-2">•</span>
-                            <span>{day.resources.length} resources</span>
                           </div>
                         </div>
                       </div>
@@ -479,30 +857,82 @@ const LearningJourneyPage = () => {
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">Resources</h3>
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">Topics to Study</h3>
                   <ul className="space-y-2">
-                    {selectedDay.resources && selectedDay.resources.length > 0 ? (
-                      selectedDay.resources.map((resource, index) => (
+                    {selectedDay.topics && selectedDay.topics.length > 0 ? (
+                      selectedDay.topics.map((topic, index) => (
                         <li key={index} className="flex items-start">
                           <div className="flex-shrink-0 h-5 w-5 text-blue-500 mt-0.5">•</div>
-                          <p className="ml-2 text-gray-700">{resource}</p>
+                          <p className="ml-2 text-gray-700">{topic}</p>
                         </li>
                       ))
                     ) : (
-                      <li className="text-gray-500">No resources available</li>
+                      <li className="text-gray-500">No topics specified</li>
                     )}
                   </ul>
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">Estimated Duration</h3>
-                  <p className="text-gray-700">{selectedDay.duration}</p>
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">Tools to Use</h3>
+                  <ul className="space-y-2">
+                    {selectedDay.tools && selectedDay.tools.length > 0 ? (
+                      selectedDay.tools.map((tool, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="flex-shrink-0 h-5 w-5 text-blue-500 mt-0.5">•</div>
+                          <p className="ml-2 text-gray-700">{tool}</p>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">No tools specified</li>
+                    )}
+                  </ul>
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">Related Challenge/Milestones</h3>
-                  <p className="text-gray-700">{selectedDay.challenge}</p>
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">Skills Learned</h3>
+                  <ul className="space-y-2">
+                    {selectedDay.skills && selectedDay.skills.length > 0 ? (
+                      selectedDay.skills.map((skill, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="flex-shrink-0 h-5 w-5 text-blue-500 mt-0.5">•</div>
+                          <p className="ml-2 text-gray-700">{skill}</p>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">No skills specified</li>
+                    )}
+                  </ul>
                 </div>
+                
+                <div className="mt-6">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">Practice Tasks & Challenges</h3>
+                  <ul className="space-y-2">
+                    {/* Display practice tasks */}
+                    {selectedDay.tasks && selectedDay.tasks.length > 0 ? (
+                      selectedDay.tasks.map((task, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="flex-shrink-0 h-5 w-5 text-blue-500 mt-0.5">•</div>
+                          <p className="ml-2 text-gray-700">{task}</p>
+                        </li>
+                      ))
+                    ) : null}
+                    
+                    {/* Display related challenges/milestones */}
+                    {selectedDay.challenge ? (
+                      <li className="flex items-start">
+                        <div className="flex-shrink-0 h-5 w-5 text-blue-500 mt-0.5">•</div>
+                        <p className="ml-2 text-gray-700">{selectedDay.challenge}</p>
+                      </li>
+                    ) : null}
+                    
+                    {/* Show message if no tasks or challenges */}
+                    {(!selectedDay.tasks || selectedDay.tasks.length === 0) && !selectedDay.challenge && (
+                      <li className="text-gray-500">No practice tasks or challenges specified</li>
+                    )}
+                  </ul>
+                </div>
+                
+
                 
                 <div className="mt-8 flex justify-end">
                   <button
