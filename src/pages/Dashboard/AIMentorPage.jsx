@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Send, FileText, Lightbulb, BookOpen } from 'lucide-react';
+import CodeMirror from "@uiw/react-codemirror";
+import { python } from "@codemirror/lang-python";
+import { githubDark } from "@uiw/codemirror-theme-github";
 import Sidebar from '../../components/Sidebar';
+import api from '../../api/axios';
 
 const AIMentorPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -8,27 +12,48 @@ const AIMentorPage = () => {
     {
       id: 1,
       sender: 'ai',
-      content: "Hello Hannan! I'm your AI mentor. How can I help you with loops in Python today?",
+      content: "Hello! I'm your AI mentor. How can I help you with your learning today?",
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [code, setCode] = useState(`# Example of a for loop
-for i in range(5):
+  const initialCode = `# Welcome to the Python Code Playground!
+# Try running this code to see the output
+
+# Variables and data types
+name = "Alice"
+age = 25
+height = 5.7
+
+print(f"Hello, {name}! You are {age} years old.")
+
+# Example of a for loop
+for i in range(3):
     print(f"Iteration {i}")
 
 # Example of a while loop
 count = 0
-while count < 5:
+while count < 2:
     print(f"Count is {count}")
-    count += 1`);
+    count += 1
+
+# Lists and basic operations
+numbers = [1, 2, 3, 4, 5]
+print(f"The list contains {len(numbers)} elements")
+print(f"The first element is {numbers[0]}")
+
+# Try modifying this code or writing your own!`;
+  
+  const [code, setCode] = useState(initialCode);
+  const [isLoading, setIsLoading] = useState(false);
+  const [output, setOutput] = useState('');
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim() === '') return;
+  const handleSendMessage = async () => {
+    if (inputMessage.trim() === '' || isLoading) return;
     
     // Add user message
     const newUserMessage = {
@@ -38,29 +63,126 @@ while count < 5:
       timestamp: new Date()
     };
     
-    setMessages([...messages, newUserMessage]);
+    const updatedMessages = [...messages, newUserMessage];
+    setMessages(updatedMessages);
     setInputMessage('');
+    setIsLoading(true);
     
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const aiResponses = [
-        "Great question! Loops are used to execute a block of code repeatedly. Let me show you another example...",
-        "That's a common confusion. The key difference is that 'for' loops are used when you know how many times to iterate, while 'while' loops continue until a condition is met.",
-        "Sure! Here's a real-world example: processing items in a shopping cart using a for loop...",
-        "I see you're asking about nested loops. These are loops inside other loops, commonly used for working with 2D data structures."
-      ];
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        const errorMessage = {
+          id: updatedMessages.length + 1,
+          sender: 'ai',
+          content: "Authentication required. Please log in again.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsLoading(false);
+        return;
+      }
       
-      const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      const newAiMessage = {
-        id: messages.length + 2,
-        sender: 'ai',
-        content: randomResponse,
-        timestamp: new Date()
-      };
+      // Log the request for debugging
+      console.log('Sending message to AI chatbot:', inputMessage);
       
-      setMessages(prev => [...prev, newAiMessage]);
-    }, 1000);
+      // Make API call to AI chat endpoint
+      const response = await api.post('/auth/student/chatbot', {
+        messages: [
+          {
+            role: 'user',
+            content: inputMessage
+          }
+        ]
+      });
+      
+      if (response.data.status) {
+        // Add AI response
+        const newAiMessage = {
+          id: updatedMessages.length + 1,
+          sender: 'ai',
+          content: response.data.data.response,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, newAiMessage]);
+      } else {
+        // Handle error response
+        const errorMessage = {
+          id: updatedMessages.length + 1,
+          sender: 'ai',
+          content: "Sorry, I encountered an error. Please try again.",
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error('AI Chat API error:', error);
+      
+      // Log more detailed error information
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+        
+        // Handle specific error codes
+        if (error.response.status === 404) {
+          const errorMessage = {
+            id: updatedMessages.length + 1,
+            sender: 'ai',
+            content: "Sorry, the AI chat service is currently unavailable. Please make sure the backend server is running and try again later.",
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          return;
+        } else if (error.response.status === 401) {
+          const errorMessage = {
+            id: updatedMessages.length + 1,
+            sender: 'ai',
+            content: "Authentication failed. Please log in again.",
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          return;
+        } else if (error.response.status >= 500) {
+          const errorMessage = {
+            id: updatedMessages.length + 1,
+            sender: 'ai',
+            content: "Sorry, the AI service is experiencing technical difficulties. Please try again later.",
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          return;
+        }
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        const errorMessage = {
+          id: updatedMessages.length + 1,
+          sender: 'ai',
+          content: "Sorry, I'm having trouble connecting to the server. Please make sure the backend is running and try again.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      } else {
+        console.error('Error message:', error.message);
+        const errorMessage = {
+          id: updatedMessages.length + 1,
+          sender: 'ai',
+          content: `Sorry, an unexpected error occurred: ${error.message}`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -74,83 +196,110 @@ while count < 5:
     alert("AI-generated study notes would appear here in a modal or sidebar.");
   };
 
+  const handleQuickPrompt = (prompt) => {
+    setInputMessage(prompt);
+    // Optionally, you could automatically send the message:
+    // setTimeout(() => handleSendMessage(), 100);
+  };
+
   const handleAskForExample = () => {
-    const exampleMessage = {
-      id: messages.length + 1,
-      sender: 'user',
-      content: "Can you show me more examples of loops?",
-      timestamp: new Date()
-    };
-    
-    setMessages([...messages, exampleMessage]);
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const exampleResponse = `Here are some additional examples of loops in Python:
-
-# Nested loops for matrix operations
-matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-for row in matrix:
-    for item in row:
-        print(item, end=' ')
-    print()  # New line after each row
-
-# Loop with enumerate to get index and value
-fruits = ['apple', 'banana', 'orange']
-for index, fruit in enumerate(fruits):
-    print(f"{index}: {fruit}")
-
-# While loop with break condition
-number = 0
-while True:
-    print(number)
-    number += 1
-    if number > 3:
-        break`;
-      
-      const newAiMessage = {
-        id: messages.length + 2,
-        sender: 'ai',
-        content: `Sure! Here are more examples of loops:\n\n${exampleResponse}`,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, newAiMessage]);
-    }, 1000);
+    const exampleMessage = "Can you show me more examples of loops?";
+    setInputMessage(exampleMessage);
+    // Optionally, you could automatically send the message:
+    // setTimeout(() => handleSendMessage(), 100);
   };
 
   const handleRequestPracticeProblem = () => {
-    const problemMessage = {
-      id: messages.length + 1,
-      sender: 'user',
-      content: "Can you give me a practice problem using loops?",
-      timestamp: new Date()
-    };
-    
-    setMessages([...messages, problemMessage]);
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const problemResponse = `Here's a practice problem for you:
+    const problemMessage = "Can you give me a practice problem using loops?";
+    setInputMessage(problemMessage);
+    // Optionally, you could automatically send the message:
+    // setTimeout(() => handleSendMessage(), 100);
+  };
 
-Write a program that prints a multiplication table for numbers 1 through 5.
-The output should look like:
-1 x 1 = 1
-1 x 2 = 2
-...
-5 x 5 = 25
-
-Try solving this using nested loops!`;
+  const runCode = async () => {
+    setOutput('Running code...');
+    
+    try {
+      // In a production environment, you would send the code to a backend service
+      // For demonstration purposes, we'll simulate execution
       
-      const newAiMessage = {
-        id: messages.length + 2,
-        sender: 'ai',
-        content: problemResponse,
-        timestamp: new Date()
-      };
+      // To integrate with a real backend code execution service, you would do something like:
+      // const response = await api.post('/auth/student/execute-code', { code });
+      // setOutput(response.data.output);
       
-      setMessages(prev => [...prev, newAiMessage]);
-    }, 1000);
+      // Simulate API call to backend code execution service
+      // This is a placeholder - in a real app, you would make an actual API call
+      
+      // For now, let's simulate the execution with a timeout
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // More comprehensive simulation of code execution
+      let outputs = [];
+      
+      // Split code into lines for processing
+      const lines = code.split('\n');
+      
+      // Process each line for print statements
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        // Handle print statements
+        if (trimmedLine.startsWith('print(') && trimmedLine.endsWith(')')) {
+          try {
+            // Extract the content inside print()
+            const content = trimmedLine.slice(6, -1);
+            
+            if (content.includes('f"') || content.includes("f'")) {
+              // Handle f-strings
+              let result = content.replace(/f"|f'/g, '').replace(/"|'/g, '');
+              
+              // Replace variables in f-strings
+              const varMatches = result.match(/\{[^}]+\}/g);
+              if (varMatches) {
+                for (const varMatch of varMatches) {
+                  const varName = varMatch.slice(1, -1);
+                  
+                  // Look for variable assignments in the code
+                  const varPattern = new RegExp(`${varName}\s*=\s*([^\n]+)`);
+                  const varMatchResult = code.match(varPattern);
+                  
+                  if (varMatchResult) {
+                    result = result.replace(varMatch, varMatchResult[1].trim());
+                  }
+                }
+              }
+              
+              outputs.push(result);
+            } else if (content.startsWith('"') || content.startsWith("'")) {
+              // Handle string literals
+              outputs.push(content.slice(1, -1));
+            } else {
+              // Handle variables and expressions
+              // Look for variable assignments in the code
+              const varPattern = new RegExp(`${content}\s*=\s*([^\n]+)`);
+              const varMatchResult = code.match(varPattern);
+              
+              if (varMatchResult) {
+                outputs.push(varMatchResult[1].trim());
+              } else {
+                // If it's a literal value, just output it
+                outputs.push(content);
+              }
+            }
+          } catch (e) {
+            outputs.push(`Error processing: ${trimmedLine}`);
+          }
+        }
+      }
+      
+      if (outputs.length > 0) {
+        setOutput(outputs.join('\n'));
+      } else {
+        setOutput('Code executed successfully (no output)');
+      }
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+    }
   };
 
   return (
@@ -172,7 +321,7 @@ Try solving this using nested loops!`;
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-semibold text-gray-900 ml-2 lg:ml-0">🧠 AI Mentor</h1>
+              <h1 className="text-xl font-semibold text-gray-900 ml-2 lg:ml-0">🤖 AI Mentor</h1>
             </div>
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
@@ -183,12 +332,12 @@ Try solving this using nested loops!`;
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-hidden flex flex-col md:flex-row p-4 gap-6">
-          {/* Left Side - Chat Interface */}
+        <main className="flex-1 overflow-hidden flex flex-col md:flex-row p-4 gap-4">
+         {/* Left Side - Chat Interface */}
           <div className="flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               <h2 className="text-lg font-bold">Chat with AI Mentor</h2>
-              <p className="text-blue-100 text-sm">Ask questions, get explanations, and receive personalized guidance</p>
+              <p className="text-blue-100 text-sm">Ask questions and get personalized learning assistance</p>
             </div>
             
             {/* Messages Container */}
@@ -212,6 +361,17 @@ Try solving this using nested loops!`;
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start mb-4">
+                  <div className="max-w-[85%] rounded-2xl p-4 bg-white border border-gray-300 rounded-bl-none shadow-sm">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-1 animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-1 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Input Area */}
@@ -227,7 +387,7 @@ Try solving this using nested loops!`;
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputMessage.trim()}
+                  disabled={!inputMessage.trim() || isLoading}
                   className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-3 rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send size={20} />
@@ -237,22 +397,22 @@ Try solving this using nested loops!`;
               {/* Quick Prompts */}
               <div className="mt-3 flex flex-wrap gap-2">
                 <button 
-                  onClick={() => setInputMessage("Explain today's topic again.")}
+                  onClick={() => handleQuickPrompt("Explain today's topic again.")}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full"
                 >
-                  Explain today's topic again
+                  Explain topic
                 </button>
                 <button 
-                  onClick={() => setInputMessage("Show me more examples of loops.")}
+                  onClick={() => handleQuickPrompt("Show me more examples of loops.")}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full"
                 >
-                  Show me more examples
+                  More examples
                 </button>
                 <button 
-                  onClick={() => setInputMessage("Give me a real-world project using this concept.")}
+                  onClick={() => handleQuickPrompt("Give me a real-world project using this concept.")}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full"
                 >
-                  Real-world project example
+                  Real-world project
                 </button>
               </div>
             </div>
@@ -262,26 +422,64 @@ Try solving this using nested loops!`;
           <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             <div className="p-4 bg-gradient-to-r from-green-600 to-teal-600 text-white">
               <h2 className="text-lg font-bold">Code Playground</h2>
-              <p className="text-green-100 text-sm">Test concepts and get instant feedback</p>
+              <p className="text-green-100 text-sm">Write and test code examples</p>
+              {/* <p className="text-green-200 text-xs mt-1">Note: Code execution is simulated. In production, this would run on a secure backend.</p> */}
             </div>
             
             {/* Code Editor */}
             <div className="flex-1 overflow-hidden">
-              <textarea
+              <CodeMirror
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full h-full font-mono text-sm p-4 resize-none focus:outline-none bg-gray-900 text-green-400"
-                spellCheck="false"
+                height="100%"
+                extensions={[python()]}
+                onChange={(value) => setCode(value)}
+                theme={githubDark}
+                basicSetup={{
+                  lineNumbers: true,
+                  highlightActiveLine: true,
+                  highlightSelectionMatches: true,
+                  autocompletion: true,
+                  foldGutter: true,
+                  allowMultipleSelections: true,
+                }}
+                className="w-full h-full text-sm"
               />
+            </div>
+            
+            {/* Output Panel */}
+            <div className="border-t border-gray-700 bg-gray-800">
+              <div className="p-2 bg-gray-700 text-gray-300 text-xs font-medium">
+                Output
+              </div>
+              <div className="p-4 h-10 overflow-y-auto font-mono text-sm text-green-400 bg-gray-900 whitespace-pre-wrap">
+                {output || <span className="text-gray-500">Run your code to see the output here...</span>}
+              </div>
             </div>
             
             {/* Editor Actions */}
             <div className="p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex justify-between items-center">
                 <div className="flex gap-2">
-                  <button className="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 shadow-sm">
+                  <button 
+                    onClick={runCode}
+                    className="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 shadow-sm"
+                  >
                     <FileText size={16} className="mr-1" />
                     Run Code
+                  </button>
+                  <button 
+                    onClick={() => setOutput('')}
+                    className="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 shadow-sm"
+                  >
+                    <FileText size={16} className="mr-1" />
+                    Clear Output
+                  </button>
+                  <button 
+                    onClick={() => setCode(initialCode)}
+                    className="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 shadow-sm"
+                  >
+                    <FileText size={16} className="mr-1" />
+                    Reset Code
                   </button>
                   <button className="flex items-center text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 shadow-sm">
                     <Lightbulb size={16} className="mr-1" />
@@ -289,34 +487,37 @@ Try solving this using nested loops!`;
                   </button>
                 </div>
                 <div className="text-xs text-gray-500">
-                  Python Interpreter
+                  Python 3.x Interpreter
                 </div>
               </div>
             </div>
             
-            {/* Floating Features */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-              <button 
-                onClick={handleViewNotes}
-                className="flex items-center bg-white border border-gray-300 rounded-full px-3 py-2 shadow-lg hover:bg-gray-50 text-sm"
-              >
-                <FileText size={16} className="mr-1 text-blue-500" />
-                <span>View Notes</span>
-              </button>
-              <button 
-                onClick={handleAskForExample}
-                className="flex items-center bg-white border border-gray-300 rounded-full px-3 py-2 shadow-lg hover:bg-gray-50 text-sm"
-              >
-                <BookOpen size={16} className="mr-1 text-green-500" />
-                <span>Ask for Example</span>
-              </button>
-              <button 
-                onClick={handleRequestPracticeProblem}
-                className="flex items-center bg-white border border-gray-300 rounded-full px-3 py-2 shadow-lg hover:bg-gray-50 text-sm"
-              >
-                <Lightbulb size={16} className="mr-1 text-yellow-500" />
-                <span>Practice Problem</span>
-              </button>
+            {/* Suggested Prompts Section */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              {/* <h3 className="text-sm font-medium text-gray-700 mb-2">Suggested Prompts:</h3> */}
+              <div className="flex flex-wrap gap-2">
+                <button 
+                  onClick={handleViewNotes}
+                  className="flex items-center text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded-full"
+                >
+                  <FileText size={12} className="mr-1" />
+                  <span>View Notes</span>
+                </button>
+                <button 
+                  onClick={handleAskForExample}
+                  className="flex items-center text-xs bg-green-100 hover:bg-green-200 text-green-800 px-2 py-1 rounded-full"
+                >
+                  <BookOpen size={12} className="mr-1" />
+                  <span>Ask for Example</span>
+                </button>
+                <button 
+                  onClick={handleRequestPracticeProblem}
+                  className="flex items-center text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full"
+                >
+                  <Lightbulb size={12} className="mr-1" />
+                  <span>Practice Problem</span>
+                </button>
+              </div>
             </div>
           </div>
         </main>
