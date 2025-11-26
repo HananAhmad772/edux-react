@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -11,7 +11,8 @@ import {
   User,
   LogOut,
   Award,
-  Lightbulb
+  Lightbulb,
+  RefreshCw
 } from 'lucide-react';
 import api from '../../api/axios';
 import Sidebar from '../../components/Sidebar';
@@ -22,36 +23,132 @@ const StudentDashboard = () => {
   const [user, setUser] = useState({ first_name: 'Hannan' });
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profileChecked, setProfileChecked] = useState(false);
+  
+  // Ref to prevent double API calls in development due to React Strict Mode
+  const fetchDashboardDataRef = useRef(false);
 
-  // Mock data for quick stats
-  const quickStats = {
-    currentDay: 3,
-    totalDays: 7,
-    xp: 120,
-    streak: 4,
-    lastProjectScore: 8
+  // Fetch user profile first, then dashboard data
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  // Fetch dashboard data after profile is verified
+  useEffect(() => {
+    if (profileChecked && user && user.user_type === 'student') {
+      const studentProfile = user.student_profile || user.studentProfile; // Support both formats
+      // Only fetch dashboard if profile is complete
+      if (studentProfile && 
+          studentProfile.major_subject && 
+          studentProfile.current_skill_level && 
+          studentProfile.main_goal) {
+        // Prevent double execution
+        if (!fetchDashboardDataRef.current) {
+          fetchDashboardDataRef.current = true;
+          fetchDashboardData();
+        }
+      }
+    } else if (profileChecked && user && user.user_type !== 'student') {
+      // Not a student, fetch dashboard anyway
+      // Prevent double execution
+      if (!fetchDashboardDataRef.current) {
+        fetchDashboardDataRef.current = true;
+        fetchDashboardData();
+      }
+    }
+  }, [user, profileChecked]);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/auth/profile');
+      if (response.data.status) {
+        const userData = response.data.data;
+        setUser(userData);
+        
+        // Check if student profile is incomplete
+        if (userData.user_type === 'student') {
+          const studentProfile = userData.student_profile || userData.studentProfile; // Support both formats
+          if (!studentProfile) {
+            // No profile - redirect immediately
+            setProfileChecked(true);
+            navigate('/student/profile-setup');
+            return;
+          }
+          
+          // Check required fields
+          const requiredFields = ['major_subject', 'current_skill_level', 'main_goal'];
+          const hasRequiredFields = requiredFields.every(field => 
+            studentProfile[field] && studentProfile[field].trim() !== ''
+          );
+          
+          if (!hasRequiredFields) {
+            // Profile incomplete - redirect immediately
+            setProfileChecked(true);
+            navigate('/student/profile-setup');
+            return;
+          }
+        }
+        
+        // Profile is complete or not a student
+        setProfileChecked(true);
+      } else {
+        setProfileChecked(true);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setProfileChecked(true);
+      
+      // If 403 and profile incomplete, redirect
+      if (error.response?.status === 403 && error.response?.data?.profile_incomplete) {
+        navigate('/student/profile-setup');
+        return;
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock data for roadmap progress (Week-based)
-  const roadmapProgress = [
-    { week: 1, status: 'completed' },
-    { week: 2, status: 'completed' },
-    { week: 3, status: 'in-progress' },
-    { week: 4, status: 'pending' },
-    { week: 5, status: 'pending' },
-    { week: 6, status: 'pending' },
-    { week: 7, status: 'pending' },
-    { week: 8, status: 'pending' },
-    { week: 9, status: 'pending' },
-    { week: 10, status: 'pending' },
-  ];
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/auth/student/dashboard');
+      if (response.data.status) {
+        setDashboardData(response.data.data);
+      } else {
+        // Check if profile is incomplete
+        if (response.data.profile_incomplete || response.status === 403) {
+          // Redirect to profile setup
+          navigate('/student/profile-setup');
+          return;
+        }
+        console.error('Failed to fetch dashboard data:', response.data.message);
+      }
+    } catch (error) {
+      // Handle 403 (profile incomplete) or other errors
+      if (error.response?.status === 403 && error.response?.data?.profile_incomplete) {
+        navigate('/student/profile-setup');
+        return;
+      }
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+      // Reset the ref so future calls can execute
+      fetchDashboardDataRef.current = false;
+    }
+  };
 
-  // Mock data for recommendations
-  const recommendations = [
-    { id: 1, title: 'Python Loops Mastery', description: 'Advanced techniques for working with loops', progress: 60 },
-    { id: 2, title: 'Error Handling', description: 'Learn how to handle exceptions gracefully', progress: 30 },
-    { id: 3, title: 'List Comprehensions', description: 'Write cleaner and more efficient Python code', progress: 0 }
-  ];
+  // Extract data with fallbacks
+  const currentWeek = dashboardData?.current_week || { week_number: 1, week_name: 'Week 1–2', step_title: 'Getting Started', current_day: 1, total_days: 14 };
+  const xp = dashboardData?.xp || 0;
+  const streak = dashboardData?.streak || 0;
+  const lastProjectScore = dashboardData?.last_project_score;
+  const todayTopic = dashboardData?.today_topic;
+  const yesterdayTopic = dashboardData?.yesterday_topic;
+  const roadmapProgress = dashboardData?.roadmap_progress?.steps || [];
+  const aiRecommendation = dashboardData?.ai_recommendation || "Welcome! Start your learning journey today.";
 
   const handleLogout = async () => {
     try {
@@ -90,8 +187,14 @@ const StudentDashboard = () => {
   };
 
   const startLesson = () => {
-    // Navigate to AI Mentor page
-    navigate('/student/ai-mentor');
+    // Check if there are no topics
+    if (!todayTopic) {
+      // Navigate to Learning Journey page to generate roadmap
+      navigate('/student/courses');
+    } else {
+      // Navigate to AI Mentor page
+      navigate('/student/ai-mentor');
+    }
   };
 
   const toggleDropdown = () => {
@@ -102,6 +205,44 @@ const StudentDashboard = () => {
     navigate('/student/settings');
     setDropdownOpen(false);
   };
+
+  // Don't render dashboard if profile check hasn't completed or profile is incomplete
+  if (!profileChecked || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is student but profile is incomplete, show message (should redirect but just in case)
+  if (user?.user_type === 'student') {
+    const studentProfile = user.student_profile || user.studentProfile; // Support both formats
+    if (!studentProfile || 
+        !studentProfile.major_subject || 
+        !studentProfile.current_skill_level || 
+        !studentProfile.main_goal) {
+      return (
+        <div className="flex h-screen items-center justify-center bg-gray-50">
+          <div className="text-center max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Setup Required</h2>
+            <p className="text-gray-600 mb-6">
+              Please complete your profile setup to access the dashboard.
+            </p>
+            <button
+              onClick={() => navigate('/student/profile-setup')}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+            >
+              Go to Profile Setup
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -163,109 +304,115 @@ const StudentDashboard = () => {
               👋 Welcome back, {user.first_name}!
             </h1>
             <p className="text-blue-100 mb-4">
-              You're currently on Week {Math.ceil(quickStats.currentDay / 7)} – Loops in Python
+              You're currently on {currentWeek.week_name} – {currentWeek.step_title}
             </p>
             
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <p className="text-sm text-blue-100">Current Week</p>
-                <p className="text-lg font-bold">{quickStats.currentDay} of {quickStats.totalDays}</p>
+            {loading ? (
+              <div className="text-center py-4">
+                <p className="text-blue-100">Loading dashboard data...</p>
               </div>
-              
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <p className="text-sm text-blue-100">XP</p>
-                <p className="text-lg font-bold">{quickStats.xp} pts</p>
-              </div>
-              
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <p className="text-sm text-blue-100">Streak</p>
-                <p className="text-lg font-bold">{quickStats.streak} days</p>
-              </div>
-              
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <p className="text-sm text-blue-100">Last Project</p>
-                <p className="text-lg font-bold">✅ Passed with {quickStats.lastProjectScore}/10</p>
-              </div>
-            </div>
-            
-            {/* Today's Mission */}
-            <div className="bg-white bg-opacity-10 rounded-xl p-4 mb-4">
-              <h3 className="font-bold text-lg mb-2">Today's Mission</h3>
-              <p className="mb-1">Today's topic: Loops in Python</p>
-              <p className="mb-3">Goal: Understand while and for loops</p>
-              <button
-                onClick={startLesson}
-                className="flex items-center bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-              >
-                <Play size={16} className="mr-2" />
-                Start Lesson
-              </button>
-            </div>
-            
-            {/* AI Suggestion */}
-            <div className="bg-yellow-500 bg-opacity-20 rounded-xl p-4 flex items-start">
-              <Lightbulb size={20} className="mr-2 flex-shrink-0 mt-0.5" />
-              <p>
-                Yesterday you struggled with conditions — let's review before continuing!
-              </p>
-            </div>
+            ) : (
+              <>
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                    <p className="text-sm text-blue-100">Current Week</p>
+                    <p className="text-lg font-bold">{currentWeek.current_day} of {currentWeek.total_days}</p>
+                  </div>
+                  
+                  <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                    <p className="text-sm text-blue-100">XP</p>
+                    <p className="text-lg font-bold">{xp} pts</p>
+                  </div>
+                  
+                  <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                    <p className="text-sm text-blue-100">Streak</p>
+                    <p className="text-lg font-bold">{streak} days</p>
+                  </div>
+                  
+                  <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                    <p className="text-sm text-blue-100">Last Project</p>
+                    {lastProjectScore ? (
+                      <p className="text-lg font-bold">
+                        {lastProjectScore.passed ? '✅' : '❌'} {lastProjectScore.passed ? 'Passed' : 'Failed'} with {lastProjectScore.score}/10
+                      </p>
+                    ) : (
+                      <p className="text-lg font-bold">No projects yet</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Today's Mission */}
+                <div className="bg-white bg-opacity-10 rounded-xl p-4 mb-4">
+                  <h3 className="font-bold text-lg mb-2">Today's Mission</h3>
+                  {todayTopic ? (
+                    <>
+                      <p className="mb-1">Today's topic: {todayTopic.topic}</p>
+                      <p className="mb-3">Step: {todayTopic.step_title}</p>
+                    </>
+                  ) : (
+                    <p className="mb-3">No topic assigned yet. Generate a roadmap to get started!</p>
+                  )}
+                  <button
+                    onClick={startLesson}
+                    className="flex items-center bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                  >
+                    {!todayTopic ? (
+                      <>
+                        <RefreshCw size={16} className="mr-2" />
+                        Generate Roadmap
+                      </>
+                    ) : (
+                      <>
+                        <Play size={16} className="mr-2" />
+                        Start Lesson
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {/* AI Suggestion */}
+                <div className="bg-yellow-500 bg-opacity-20 rounded-xl p-4 flex items-start">
+                  <Lightbulb size={20} className="mr-2 flex-shrink-0 mt-0.5" />
+                  <p>{aiRecommendation}</p>
+                </div>
+              </>
+            )}
           </div>
           
           {/* Roadmap Progress Bar */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Roadmap Progress</h2>
-            <div className="flex items-center justify-between">
-              {roadmapProgress.map((week, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                    week.status === 'completed' ? 'bg-green-500 text-white' : 
-                    week.status === 'in-progress' ? 'bg-orange-500 text-white' : 
-                    'bg-gray-200 text-gray-500'
-                  }`}>
-                    {week.status === 'completed' ? '✅' : 
-                     week.status === 'in-progress' ? '🔥' : 
-                     `W${week.week}`}
-                  </div>
-                  <span className="text-xs text-gray-500">Week {week.week}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recommendations Section */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Recommended for You</h2>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View All
-              </button>
+              <h2 className="text-xl font-bold text-gray-900">Roadmap Progress</h2>
+              {dashboardData?.roadmap_progress && (
+                <p className="text-sm text-gray-600">
+                  {dashboardData.roadmap_progress.completed_topics} / {dashboardData.roadmap_progress.total_topics} topics completed
+                  ({dashboardData.roadmap_progress.percentage}%)
+                </p>
+              )}
             </div>
-            
-            <div className="space-y-4">
-              {recommendations.map((item) => (
-                <div key={item.id} className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                    <BookOpen size={24} />
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-                    <div className="mt-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
-                          style={{ width: `${item.progress}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">{item.progress}% complete</p>
+            <div className="flex items-center justify-between overflow-x-auto pb-2">
+              {roadmapProgress.length > 0 ? (
+                roadmapProgress.map((week, index) => (
+                  <div key={index} className="flex flex-col items-center min-w-[60px]">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                      week.status === 'completed' ? 'bg-green-500 text-white' : 
+                      week.status === 'in-progress' ? 'bg-orange-500 text-white' : 
+                      'bg-gray-200 text-gray-500'
+                    }`}>
+                      {week.status === 'completed' ? '✅' : 
+                       week.status === 'in-progress' ? '🔥' : 
+                       `W${week.week}`}
                     </div>
+                    <span className="text-xs text-gray-500 text-center">{week.week_name || `Week ${week.week}`}</span>
+                    {week.progress !== undefined && (
+                      <span className="text-xs text-gray-400 mt-1">{week.progress}%</span>
+                    )}
                   </div>
-                  <button className="ml-4 p-2 text-gray-400 hover:text-blue-600">
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No roadmap progress available. Generate a roadmap to get started!</p>
+              )}
             </div>
           </div>
 

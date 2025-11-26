@@ -12,6 +12,7 @@ const LearningJourneyPage = () => {
   const [generating, setGenerating] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
+  const [notification, setNotification] = useState(null); // For showing API messages
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -43,9 +44,18 @@ const LearningJourneyPage = () => {
       setLatestRoadmap(roadmapData);
     } catch (error) {
       console.error("Error fetching roadmaps:", error);
+      showNotification('Error fetching roadmaps', 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  const showNotification = (message, type = 'info') => {
+    setNotification({ message, type });
+    // Auto-hide notification after 5 seconds
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
   };
 
   const generateNewRoadmap = async () => {
@@ -60,6 +70,9 @@ const LearningJourneyPage = () => {
       // Generate new roadmap
       const generateResponse = await api.post("/auth/student/generate-roadmap");
       
+      // Show success message
+      showNotification(generateResponse.data.message || 'Roadmap generated successfully', 'success');
+      
       // Extract roadmap content from the data object
       const roadmapData = generateResponse.data?.data?.roadmap_content || generateResponse.data?.roadmap_content || generateResponse.data;
       
@@ -71,6 +84,9 @@ const LearningJourneyPage = () => {
       setRoadmaps(roadmapsResponse.data);
     } catch (error) {
       console.error("Error generating roadmap:", error);
+      // Show error message
+      const errorMessage = error.response?.data?.message || 'Error generating roadmap';
+      showNotification(errorMessage, 'error');
     } finally {
       setGenerating(false);
     }
@@ -329,19 +345,46 @@ const LearningJourneyPage = () => {
   // Extract explanation from roadmap string
   const extractExplanation = (roadmapString) => {
     if (!roadmapString) return "";
+
+    // Try multiple formats for finding the explanation section
+    const explanationStartMarkers = [
+      'Roadmap Explanation:',
+      '**Roadmap Explanation**',
+      '1. Roadmap Explanation:'
+    ];
     
-    // Find the sections that contain explanation content
-    const explanationStartIndex = roadmapString.indexOf('**Roadmap Explanation**');
-    const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
+    let explanationStartIndex = -1;
+    let usedMarker = '';
+    
+    for (const marker of explanationStartMarkers) {
+      const index = roadmapString.indexOf(marker);
+      if (index !== -1) {
+        explanationStartIndex = index;
+        usedMarker = marker;
+        break;
+      }
+    }
     
     if (explanationStartIndex === -1) return "";
+
+    // Find the end of explanation (start of next major section)
+    const nextSectionMarkers = [
+      '**Learning Roadmap',
+      '5. Learning Roadmap',
+      '**Recommended Resources',
+      '6. Recommended Resources'
+    ];
     
-    // Determine the end of explanation content (start of roadmap)
-    const endIndex = roadmapStartIndex !== -1 ? roadmapStartIndex : roadmapString.length;
-    
+    let endIndex = roadmapString.length;
+    for (const marker of nextSectionMarkers) {
+      const index = roadmapString.indexOf(marker, explanationStartIndex + usedMarker.length);
+      if (index !== -1 && index < endIndex) {
+        endIndex = index;
+      }
+    }
+
     // Extract the explanation section
     const explanation = roadmapString.substring(explanationStartIndex, endIndex).trim();
-    
     return explanation;
   };
   
@@ -389,7 +432,12 @@ const LearningJourneyPage = () => {
     
     // Find the roadmap plan section
     const roadmapStartIndex = roadmapString.indexOf('**Learning Roadmap');
-    if (roadmapStartIndex === -1) return [];
+    if (roadmapStartIndex === -1) {
+      // Try alternative format
+      const altRoadmapStartIndex = roadmapString.indexOf('5. Learning Roadmap');
+      if (altRoadmapStartIndex === -1) return [];
+      roadmapStartIndex = altRoadmapStartIndex;
+    }
     
     // Get the roadmap content
     const roadmapContent = roadmapString.substring(roadmapStartIndex);
@@ -536,13 +584,13 @@ const LearningJourneyPage = () => {
     
     // Convert markdown to HTML-like structure for display
     let formatted = explanation
-      .replace(/\*\*Roadmap Explanation\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Roadmap Explanation</h3>')
-      .replace(/\*\*Key Highlights\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Key Highlights</h3>')
-      .replace(/\*\*Current Skill Assessment\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Current Skill Assessment</h3>')
-      .replace(/\*\*Strengths:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Strengths:</h4>')
-      .replace(/\*\*Weaknesses:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Weaknesses:</h4>')
-      .replace(/\*\*Gaps detected from quiz performance:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Gaps detected from quiz performance:</h4>')
-      .replace(/\*\*Learning Objectives:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Learning Objectives</h3>')
+      .replace(/Roadmap Explanation:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Roadmap Explanation</h3>')
+      .replace(/Key Highlights:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Key Highlights</h3>')
+      .replace(/Current Skill Assessment:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Current Skill Assessment</h3>')
+      .replace(/Strengths:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Strengths:</h4>')
+      .replace(/Weaknesses:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Weaknesses:</h4>')
+      .replace(/Gaps detected from quiz performance:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Gaps detected from quiz performance:</h4>')
+      .replace(/Learning Objectives:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Learning Objectives</h3>')
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
       .replace(/\n\s*•\s*/g, '<br/>• ')
       .replace(/^• /gm, '• ')
@@ -558,8 +606,8 @@ const LearningJourneyPage = () => {
   const extractRecommendedResources = (roadmapString) => {
     if (!roadmapString) return "";
     
-    const resourcesStartIndex = roadmapString.indexOf('**Recommended Resources:**');
-    const timelineStartIndex = roadmapString.indexOf('**Timeline & Milestones:**');
+    const resourcesStartIndex = roadmapString.indexOf('Recommended Resources:');
+    const timelineStartIndex = roadmapString.indexOf('Timeline & Milestones:');
     
     if (resourcesStartIndex === -1) return "";
     
@@ -576,7 +624,7 @@ const LearningJourneyPage = () => {
   const extractTimelineMilestones = (roadmapString) => {
     if (!roadmapString) return "";
     
-    const timelineStartIndex = roadmapString.indexOf('**Timeline & Milestones:**');
+    const timelineStartIndex = roadmapString.indexOf('Timeline & Milestones:');
     
     if (timelineStartIndex === -1) return "";
     
@@ -592,11 +640,11 @@ const LearningJourneyPage = () => {
     
     // Convert markdown to HTML-like structure for display
     let formatted = resources
-      .replace(/\*\*Recommended Resources:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Recommended Resources</h3>')
-      .replace(/\*\*Courses:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Courses:</h4>')
-      .replace(/\*\*Tutorials:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Tutorials:</h4>')
-      .replace(/\*\*Documentation:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Documentation:</h4>')
-      .replace(/\*\*GitHub repos:\*\*/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">GitHub Repositories:</h4>')
+      .replace(/Recommended Resources:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Recommended Resources</h3>')
+      .replace(/Courses:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Courses:</h4>')
+      .replace(/Tutorials:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Tutorials:</h4>')
+      .replace(/Documentation:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">Documentation:</h4>')
+      .replace(/GitHub repos:/g, '<h4 class="font-bold mt-3 mb-1 text-gray-800">GitHub Repositories:</h4>')
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
       .replace(/\n\s*•\s*/g, '<br/>• ')
       .replace(/^• /gm, '• ')
@@ -611,7 +659,7 @@ const LearningJourneyPage = () => {
     
     // Convert markdown to HTML-like structure for display
     let formatted = timeline
-      .replace(/\*\*Timeline & Milestones:\*\*/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Timeline & Milestones</h3>')
+      .replace(/Timeline & Milestones:/g, '<h3 class="text-lg font-bold mt-4 mb-2 text-blue-800">Timeline & Milestones</h3>')
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
       .replace(/\n\s*•\s*/g, '<br/>• ')
       .replace(/^• /gm, '• ')
@@ -639,6 +687,25 @@ const LearningJourneyPage = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-opacity duration-300 ${
+          notification.type === 'error' ? 'bg-red-500 text-white' :
+          notification.type === 'success' ? 'bg-green-500 text-white' :
+          'bg-blue-500 text-white'
+        }`}>
+          <div className="flex items-center">
+            <span>{notification.message}</span>
+            <button 
+              onClick={() => setNotification(null)}
+              className="ml-4 text-white hover:text-gray-200"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
@@ -932,8 +999,6 @@ const LearningJourneyPage = () => {
                     )}
                   </ul>
                 </div>
-                
-
                 
                 <div className="mt-8 flex justify-end">
                   <button

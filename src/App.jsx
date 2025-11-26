@@ -27,6 +27,8 @@ import DailyChallengePage from './pages/Dashboard/DailyChallengePage';
 import ProgressFeedbackPage from './pages/Dashboard/ProgressFeedbackPage';
 import AchievementsPage from './pages/Dashboard/AchievementsPage';
 import SettingsPage from './pages/Dashboard/SettingsPage';
+import ProfileSetupPage from './pages/Dashboard/ProfileSetupPage';
+import StudentRouteGuard from './components/StudentRouteGuard';
 import './App.css';
 import PrivacyPolicy from './pages/landing-pages/PrivacyPolicy';
 import TermsOfService from './pages/landing-pages/TermsOfServices';
@@ -81,15 +83,18 @@ function App() {
           
           {/* Student Dashboard Routes - No Navbar/Footer */}
           <Route path="/student/*" element={
-            <Routes>
-              <Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="courses" element={<LearningJourneyPage />} />
-              <Route path="ai-mentor" element={<AIMentorPage />} />
-              <Route path="projects" element={<DailyChallengePage />} />
-              <Route path="progress" element={<ProgressFeedbackPage />} />
-              <Route path="certifications" element={<AchievementsPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Routes>
+            <StudentRouteGuard>
+              <Routes>
+                <Route path="profile-setup" element={<ProfileSetupPage />} />
+                <Route path="dashboard" element={<StudentDashboard />} />
+                <Route path="courses" element={<LearningJourneyPage />} />
+                <Route path="ai-mentor" element={<AIMentorPage />} />
+                <Route path="projects" element={<DailyChallengePage />} />
+                <Route path="progress" element={<ProgressFeedbackPage />} />
+                <Route path="certifications" element={<AchievementsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Routes>
+            </StudentRouteGuard>
           } />
           
           {/* Other Dashboard Routes - No Navbar/Footer */}

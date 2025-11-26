@@ -22,8 +22,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/student/dashboard' },
-    { name: 'AI Mentor', icon: User, path: '/student/ai-mentor' },
     { name: 'Learning Journey', icon: Map, path: '/student/courses' },
+    { name: 'AI Mentor', icon: User, path: '/student/ai-mentor' },
     { name: 'Daily Challenge', icon: Target, path: '/student/projects' },
     { name: 'Progress & Feedback', icon: BarChart2, path: '/student/progress' },
     { name: 'Achievements', icon: Award, path: '/student/certifications' },
