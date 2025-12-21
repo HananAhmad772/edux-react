@@ -17,6 +17,7 @@ import {
 import api from '../../api/axios';
 import Sidebar from '../../components/Sidebar';
 
+
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,11 +30,17 @@ const StudentDashboard = () => {
   
   // Ref to prevent double API calls in development due to React Strict Mode
   const fetchDashboardDataRef = useRef(false);
+  const profileFetchRef = useRef(false);
+
 
   // Fetch user profile first, then dashboard data
-  useEffect(() => {
+useEffect(() => {
+  if (!profileFetchRef.current) {
+    profileFetchRef.current = true;
     fetchUserProfile();
-  }, []);
+  }
+}, []);
+
 
   // Fetch dashboard data after profile is verified
   useEffect(() => {

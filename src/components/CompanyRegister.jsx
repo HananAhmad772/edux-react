@@ -120,14 +120,26 @@ const CompanyRegister = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Make API call to register company
+      const response = await fetch('http://127.0.0.1:8000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
       
-      // Here you would make the actual API call
-      console.log('Company registration:', formData);
-      
-      // Redirect to company dashboard
-      navigate('/companies');
+      if (response.ok && data.status) {
+        // Save token to localStorage
+        localStorage.setItem('token', data.data.token);
+        
+        // Redirect to company dashboard
+        navigate('/company/dashboard');
+      } else {
+        setErrors({ general: data.message || 'Registration failed. Please try again.' });
+      }
     } catch (error) {
       console.error('Registration error:', error);
       setErrors({ general: 'Registration failed. Please try again.' });

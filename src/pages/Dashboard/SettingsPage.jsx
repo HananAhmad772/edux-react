@@ -1,21 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Palette, Bell, Shield, Trash2, LogOut } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
+import api from '../../api/axios';
 
 const SettingsPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState({
-    firstName: 'Hannan',
-    lastName: 'Ahmad',
-    email: 'hannan@example.com',
-    bio: 'Aspiring software developer passionate about Python and AI',
-    fieldOfInterest: 'Python Programming',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    bio: '',
+    dob: '',
+    gender: '',
+    class_year: '',
+    institute: '',
+    major_subject: '',
+    fieldOfInterest: '',
     aiTone: 'Friendly'
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/auth/profile');
+      if (response.data.status) {
+        const userData = response.data.data;
+        setProfile({
+          firstName: userData.first_name || '',
+          lastName: userData.last_name || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          bio: userData.studentProfile?.bio || '',
+          dob: userData.studentProfile?.dob || '',
+          gender: userData.studentProfile?.gender || '',
+          class_year: userData.studentProfile?.class_year || '',
+          institute: userData.studentProfile?.institute || '',
+          major_subject: userData.studentProfile?.major_subject || '',
+          fieldOfInterest: userData.studentProfile?.major_subject || '',
+          aiTone: 'Friendly' // This would come from user preferences if available
+        });
+      }
+    } catch (err) {
+      setError('Failed to fetch profile data');
+      console.error('Error fetching profile:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProfileChange = (e) => {
@@ -26,21 +70,95 @@ const SettingsPage = () => {
     }));
   };
 
-  const handleSaveProfile = () => {
-    alert('Profile updated successfully!');
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      // Prepare data for API call
+      const profileData = {
+        first_name: profile.firstName,
+        last_name: profile.lastName,
+        phone: profile.phone,
+        bio: profile.bio,
+        dob: profile.dob,
+        gender: profile.gender,
+        class_year: profile.class_year,
+        institute: profile.institute,
+        major_subject: profile.major_subject
+      };
+
+      const response = await api.post('/auth/update-profile', profileData);
+      
+      if (response.data.status) {
+        alert('Profile updated successfully!');
+      } else {
+        setError(response.data.message || 'Failed to update profile');
+      }
+    } catch (err) {
+      setError('Failed to update profile');
+      console.error('Error updating profile:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleResetProgress = () => {
+  const handleSavePreferences = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      // For now, we'll just show a success message
+      // In a real implementation, this would save preferences to the backend
+      alert('Preferences saved successfully!');
+    } catch (err) {
+      setError('Failed to save preferences');
+      console.error('Error saving preferences:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResetProgress = async () => {
     if (window.confirm('Are you sure you want to reset all your progress? This action cannot be undone.')) {
-      alert('Progress reset successfully!');
+      try {
+        // In a real implementation, this would call an API to reset progress
+        alert('Progress reset successfully!');
+      } catch (err) {
+        setError('Failed to reset progress');
+        console.error('Error resetting progress:', err);
+      }
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('Are you sure you want to logout?')) {
-      alert('Logged out successfully!');
+      try {
+        await api.post('/auth/logout');
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      } catch (err) {
+        console.error('Error logging out:', err);
+        // Even if API fails, clear local data and redirect
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -65,7 +183,7 @@ const SettingsPage = () => {
             </div>
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                ST
+                {profile.firstName?.charAt(0)}{profile.lastName?.charAt(0)}
               </div>
             </div>
           </div>
@@ -74,6 +192,13 @@ const SettingsPage = () => {
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="bg-white rounded-xl shadow-sm p-6">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {error}
+              </div>
+            )}
+
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
               <nav className="flex space-x-8">
@@ -138,12 +263,77 @@ const SettingsPage = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
                       type="email"
                       name="email"
                       value={profile.email}
+                      onChange={handleProfileChange}
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={profile.phone}
+                      onChange={handleProfileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                    <input
+                      type="date"
+                      name="dob"
+                      value={profile.dob}
+                      onChange={handleProfileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select
+                      name="gender"
+                      value={profile.gender}
+                      onChange={handleProfileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Class Year</label>
+                    <input
+                      type="text"
+                      name="class_year"
+                      value={profile.class_year}
+                      onChange={handleProfileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute</label>
+                    <input
+                      type="text"
+                      name="institute"
+                      value={profile.institute}
+                      onChange={handleProfileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Major Subject</label>
+                    <input
+                      type="text"
+                      name="major_subject"
+                      value={profile.major_subject}
                       onChange={handleProfileChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -162,9 +352,10 @@ const SettingsPage = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={handleSaveProfile}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600"
+                    disabled={saving}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50"
                   >
-                    Save Changes
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
@@ -183,11 +374,15 @@ const SettingsPage = () => {
                       onChange={handleProfileChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="Python Programming">Python Programming</option>
+                      <option value="">Select Field of Interest</option>
                       <option value="Web Development">Web Development</option>
+                      <option value="Mobile Development">Mobile Development</option>
                       <option value="Data Science">Data Science</option>
                       <option value="Machine Learning">Machine Learning</option>
-                      <option value="Mobile Development">Mobile Development</option>
+                      <option value="Artificial Intelligence">Artificial Intelligence</option>
+                      <option value="Cybersecurity">Cybersecurity</option>
+                      <option value="Cloud Computing">Cloud Computing</option>
+                      <option value="DevOps">DevOps</option>
                     </select>
                   </div>
                   <div>
@@ -218,10 +413,11 @@ const SettingsPage = () => {
                 </div>
                 <div className="flex justify-end">
                   <button
-                    onClick={handleSaveProfile}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600"
+                    onClick={handleSavePreferences}
+                    disabled={saving}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50"
                   >
-                    Save Preferences
+                    {saving ? 'Saving...' : 'Save Preferences'}
                   </button>
                 </div>
               </div>

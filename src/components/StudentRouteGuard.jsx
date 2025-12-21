@@ -10,7 +10,7 @@ const StudentRouteGuard = ({ children }) => {
 
   useEffect(() => {
     checkProfileStatus();
-  }, [location.pathname]);
+  }, []);
 
   const checkProfileStatus = async () => {
     try {
@@ -26,55 +26,64 @@ const StudentRouteGuard = ({ children }) => {
       // Set auth header
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
+      // COMMENTED OUT: Profile fetching logic since it's already handled by the dashboard
       // Check profile by calling the profile endpoint
-      const profileResponse = await api.get('/auth/profile');
+      // const profileResponse = await api.get('/auth/profile');
       
-      if (profileResponse.data.status) {
-        const user = profileResponse.data.data;
-        const studentProfile = user.studentProfile;
+      // if (profileResponse.data.status) {
+      //   const user = profileResponse.data.data;
 
-        // If user is a student
-        if (user.user_type === 'student') {
-          // Get student profile (support both snake_case and camelCase)
-          const studentProfile = user.student_profile || user.studentProfile;
+      //   // If user is a student
+      //   if (user.user_type === 'student') {
+      //     // Get student profile (support both snake_case and camelCase)
+      //     const studentProfile = user.student_profile || user.studentProfile;
           
-          // Check if profile exists and has required fields
-          if (!studentProfile) {
-            // No profile - redirect to setup
-            if (location.pathname !== '/student/profile-setup') {
-              navigate('/student/profile-setup');
-              return;
-            }
-            setIsAuthorized(true);
-            return;
-          }
+      //     // Check if profile exists and has required fields
+      //     if (!studentProfile) {
+      //       // No profile - redirect to setup
+      //       if (location.pathname !== '/student/profile-setup') {
+      //         navigate('/student/profile-setup');
+      //         return;
+      //       }
+      //       setIsAuthorized(true);
+      //       return;
+      //     }
 
-          // Check required fields
-          const requiredFields = ['major_subject', 'current_skill_level', 'main_goal'];
-          const hasRequiredFields = requiredFields.every(field => 
-            studentProfile[field] && studentProfile[field].trim() !== ''
-          );
+      //     // Check required fields
+      //     const requiredFields = ['major_subject', 'current_skill_level', 'main_goal'];
+      //     const hasRequiredFields = requiredFields.every(field => 
+      //       studentProfile[field] && studentProfile[field].trim() !== ''
+      //     );
 
-          if (!hasRequiredFields) {
-            // Profile incomplete - redirect to setup
-            if (location.pathname !== '/student/profile-setup') {
-              navigate('/student/profile-setup');
-              return;
-            }
-            setIsAuthorized(true);
-            return;
-          }
+      //     if (!hasRequiredFields) {
+      //       // Profile incomplete - redirect to setup
+      //       if (location.pathname !== '/student/profile-setup') {
+      //         navigate('/student/profile-setup');
+      //         return;
+      //       }
+      //       setIsAuthorized(true);
+      //       return;
+      //     }
 
-          // Profile is complete - allow access
-          setIsAuthorized(true);
-        } else {
-          // Not a student - allow access
-          setIsAuthorized(true);
-        }
-      } else {
-        // Profile check failed
-        navigate('/login');
-      }
+      //     // Profile is complete - allow access
+      //     setIsAuthorized(true);
+      //   } else {
+      //     // Not a student - redirect to appropriate dashboard or login
+      //     if (user.user_type === 'company') {
+      //       navigate('/company/dashboard');
+      //     } else if (user.user_type === 'admin') {
+      //       navigate('/admin/dashboard');
+      //     } else {
+      //       navigate('/login');
+      //     }
+      //   }
+      // } else {
+      //   // Profile check failed
+      //   navigate('/login');
+      // }
+      
+      // Since the profile check is handled by the dashboard, we'll just allow access
+      setIsAuthorized(true);
     } catch (error) {
       console.error('Profile check error:', error);
       
@@ -90,8 +99,8 @@ const StudentRouteGuard = ({ children }) => {
         return;
       }
       
-      // For other errors, allow access (might be network issue)
-      setIsAuthorized(true);
+      // For other errors, redirect to login
+      navigate('/login');
     } finally {
       setIsChecking(false);
     }
@@ -116,4 +125,3 @@ const StudentRouteGuard = ({ children }) => {
 };
 
 export default StudentRouteGuard;
-

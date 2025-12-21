@@ -2,18 +2,16 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
-  User, 
-  Map, 
+  Users, 
   Target, 
   BarChart2, 
   Award, 
   UserCircle,
-  Building,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const CompanySidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -22,14 +20,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const menuItems = [
-    { name: 'Dashboard', icon: Home, path: '/student/dashboard' },
-    { name: 'Learning Journey', icon: Map, path: '/student/courses' },
-    { name: 'AI Mentor', icon: User, path: '/student/ai-mentor' },
-    { name: 'Daily Challenge', icon: Target, path: '/student/projects' },
-    { name: 'Progress & Feedback', icon: BarChart2, path: '/student/progress' },
-    { name: 'Achievements', icon: Award, path: '/student/certifications' },
-    { name: 'Job Applications', icon: Building, path: '/student/jobs' },
-    { name: 'Profile', icon: UserCircle, path: '/student/settings' }
+    { name: 'Dashboard', icon: Home, path: '/company/dashboard' },
+    { name: 'Top Candidates', icon: Users, path: '/company/candidates' },
+    { name: 'Job Opportunities', icon: Target, path: '/company/jobs' },
+    { name: 'Analytics', icon: BarChart2, path: '/company/analytics' },
+    { name: 'Company Profile', icon: UserCircle, path: '/company/profile' }
   ];
 
   return (
@@ -99,13 +94,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                  HA
+                  TC
                 </div>
               </div>
               {!isCollapsed && (
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">Hannan Ahmad</p>
-                  <p className="text-xs text-gray-500">Student</p>
+                  <p className="text-sm font-medium text-gray-900">Tech Company</p>
+                  <p className="text-xs text-gray-500">Company</p>
                 </div>
               )}
             </div>
@@ -116,4 +111,4 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   );
 };
 
-export default Sidebar;
+export default CompanySidebar;

@@ -28,7 +28,9 @@ import ProgressFeedbackPage from './pages/Dashboard/ProgressFeedbackPage';
 import AchievementsPage from './pages/Dashboard/AchievementsPage';
 import SettingsPage from './pages/Dashboard/SettingsPage';
 import ProfileSetupPage from './pages/Dashboard/ProfileSetupPage';
+import JobApplicationsPage from './pages/Dashboard/JobApplicationsPage';
 import StudentRouteGuard from './components/StudentRouteGuard';
+import CompanyRouteGuard from './components/CompanyRouteGuard';
 import './App.css';
 import PrivacyPolicy from './pages/landing-pages/PrivacyPolicy';
 import TermsOfService from './pages/landing-pages/TermsOfServices';
@@ -92,13 +94,26 @@ function App() {
                 <Route path="projects" element={<DailyChallengePage />} />
                 <Route path="progress" element={<ProgressFeedbackPage />} />
                 <Route path="certifications" element={<AchievementsPage />} />
+                <Route path="jobs" element={<JobApplicationsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Routes>
             </StudentRouteGuard>
           } />
           
+          {/* Company Dashboard Routes - No Navbar/Footer */}
+          <Route path="/company/*" element={
+            <CompanyRouteGuard>
+              <Routes>
+                <Route path="dashboard" element={<CompanyDashboard />} />
+                <Route path="candidates" element={<CompanyDashboard />} />
+                <Route path="jobs" element={<CompanyDashboard />} />
+                <Route path="analytics" element={<CompanyDashboard />} />
+                <Route path="profile" element={<CompanyDashboard />} />
+              </Routes>
+            </CompanyRouteGuard>
+          } />
+          
           {/* Other Dashboard Routes - No Navbar/Footer */}
-          <Route path="/company/dashboard" element={<CompanyDashboard />} />
           {/* <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} /> */}
         </Routes>
       </div>
